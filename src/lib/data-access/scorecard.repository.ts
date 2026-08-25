@@ -1,5 +1,6 @@
 import { MOCK_INSTITUTIONS } from '@/data/mock/institutions.mock';
 import { MOCK_PERFORMANCE_CATEGORIES, getCategoryInstitutionBreakdown } from '@/data/mock/performance.mock';
+import { getFacultyBreakdown } from '@/data/mock/faculty-performance.mock';
 import {
   InstitutionCategoryDetail,
   DepartmentCategoryMetric,
@@ -32,8 +33,6 @@ export const scorecardRepository = {
       return [];
     }
 
-    const totalFaculty = institution.departments.reduce((acc, d) => acc + d.facultyCount, 0);
-
     return MOCK_PERFORMANCE_CATEGORIES.map((cat) => {
       // Fetch the canonical mock breakdown for this category
       const breakdown = getCategoryInstitutionBreakdown(cat.id);
@@ -51,20 +50,17 @@ export const scorecardRepository = {
 
       switch (cat.code) {
         case 'PUB': {
-          // Objective calculation from existing actual publications and faculty counts
-          const perCapita = (actual / Math.max(1, totalFaculty)).toFixed(2);
           highlights.push(
-            { label: 'Per Capita', value: `${perCapita} papers/faculty`, note: '(Calculated)' },
-            { label: 'Zero-Pub Faculty', value: 'Not available' },
-            { label: 'Scopus / WoS Indexed', value: 'Not available' }
+            { label: 'Per Capita', value: 'Not available' },
+            { label: 'Zero-Faculty Participation', value: 'Not available' },
+            { label: 'Student / Other Publications', value: 'Not available' }
           );
           break;
         }
         case 'PAT': {
           highlights.push(
-            { label: 'Patents Published', value: 'Not available' },
-            { label: 'Patents Granted', value: 'Not available' },
-            { label: 'Zero-Faculty Patents', value: 'Not available' }
+            { label: 'Zero-Faculty Participation', value: 'Not available' },
+            { label: 'Patents Published / Granted', value: 'Not available' }
           );
           break;
         }
@@ -77,13 +73,14 @@ export const scorecardRepository = {
         }
         case 'CONS': {
           highlights.push(
-            { label: 'Active Corporate Clients', value: 'Not available' },
-            { label: 'Zero-Consultancy Faculty', value: 'Not available' }
+            { label: 'Zero-Faculty Participation', value: 'Not available' },
+            { label: 'Active Corporate Clients', value: 'Not available' }
           );
           break;
         }
         case 'PLACE': {
           highlights.push(
+            { label: 'Placement Percentage', value: `${actual}%` },
             { label: 'Eligible Students', value: 'Not available' },
             { label: 'Students Placed', value: 'Not available' }
           );
@@ -91,6 +88,7 @@ export const scorecardRepository = {
         }
         case 'ADM': {
           highlights.push(
+            { label: 'Admission Percentage', value: `${actual}%` },
             { label: 'Sanctioned Intake', value: 'Not available' },
             { label: 'Seats Filled', value: 'Not available' }
           );
@@ -98,8 +96,9 @@ export const scorecardRepository = {
         }
         case 'NPTEL': {
           highlights.push(
-            { label: 'Faculty Certifications', value: 'Not available' },
-            { label: 'Student Certifications', value: 'Not available' }
+            { label: 'Not Done / Incomplete', value: 'Not available' },
+            { label: 'Zero-Faculty Participation', value: 'Not available' },
+            { label: 'Faculty / Student Certifications', value: 'Not available' }
           );
           break;
         }
@@ -119,8 +118,8 @@ export const scorecardRepository = {
         }
         case 'SCH': {
           highlights.push(
-            { label: 'Approved PhD Guides', value: 'Not available' },
-            { label: 'Faculty Holding PhD', value: 'Not available' }
+            { label: 'Total Faculty with PhD', value: 'Not available' },
+            { label: 'PhD Guideship / Supervisors', value: 'Not available' }
           );
           break;
         }
@@ -132,13 +131,13 @@ export const scorecardRepository = {
           break;
         }
         case 'GRAD': {
-          // Comparisons not available in the current mock data
           yearComparison = [
             { ay: '2023–24', value: 0, unit: 'Not available' },
             { ay: '2024–25', value: 0, unit: 'Not available' },
             { ay: '2025–26 (Current)', value: actual, unit: '%' },
           ];
           highlights.push(
+            { label: 'Academic-Year Comparison', value: 'Available in Trend Table' },
             { label: 'Distinction / First Class', value: 'Not available' }
           );
           break;
@@ -152,8 +151,9 @@ export const scorecardRepository = {
         }
         case 'FAC': {
           highlights.push(
-            { label: 'Appraisals Completed', value: 'Not available' },
-            { label: 'Teaching Quality Score', value: 'Not available' }
+            { label: 'Sanctioned / Total Vacancies', value: 'Not available' },
+            { label: 'Department Open Vacancies', value: 'Not available' },
+            { label: 'Appraisals Completed', value: 'Not available' }
           );
           break;
         }
@@ -212,28 +212,18 @@ export const scorecardRepository = {
         )
       : undefined;
 
-    // Parameter-specific department breakdown is not available in mock data
-    if (selectedCat) {
-      return {
-        category: selectedCat,
-        departments: [],
-        isOverall: false,
-        isUnavailable: true,
-      };
-    }
-
-    // Return the actual department-level overall scores
-    const departments: DepartmentCategoryMetric[] = institution.departments.map((dept) => {
+    // Map constituent departments without inventing parameter-level scores
+    const constituentDepartments: DepartmentCategoryMetric[] = institution.departments.map((dept) => {
       return {
         departmentId: dept.id,
         departmentName: dept.name,
         departmentCode: dept.code,
         facultyCount: dept.facultyCount,
         studentCount: dept.studentCount,
-        target: 100,
-        actual: dept.performanceScore,
-        unit: '%',
-        achievementPercentage: dept.performanceScore,
+        target: selectedCat ? selectedCat.target : 100,
+        actual: selectedCat ? 'Not available' : dept.performanceScore,
+        unit: selectedCat ? selectedCat.unit : '%',
+        achievementPercentage: selectedCat ? 'Not available' : dept.performanceScore,
         status: dept.status,
         trend: 'Not available',
         openVacancies: 'Not available',
@@ -241,10 +231,27 @@ export const scorecardRepository = {
       };
     });
 
+    // Parameter-specific department breakdown is not available in mock data
+    if (selectedCat) {
+      return {
+        category: selectedCat,
+        departments: constituentDepartments,
+        isOverall: false,
+        isUnavailable: true,
+      };
+    }
+
     return {
-      departments,
+      departments: constituentDepartments,
       isOverall: true,
       isUnavailable: false,
     };
   },
+
+  /**
+   * Get faculty-level breakdown for a specific department and category.
+   */
+  getFacultyCategoryPerformance(institutionId: string, departmentId: string, categoryId: string) {
+    return getFacultyBreakdown(institutionId, departmentId, categoryId);
+  }
 };

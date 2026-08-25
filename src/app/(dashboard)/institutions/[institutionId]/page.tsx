@@ -17,7 +17,6 @@ import { InstitutionCategoryDetail } from '@/lib/types/performance';
 import { PerformanceStatus } from '@/lib/types/common';
 import { ParameterCard } from '@/components/institutions/parameter-card';
 import { ParameterDetailModal } from '@/components/institutions/parameter-detail-modal';
-import { DepartmentPerformanceGrid } from '@/components/institutions/department-performance-grid';
 import { cn } from '@/lib/utils';
 
 export default function InstitutionDetailPage() {
@@ -41,7 +40,6 @@ export default function InstitutionDetailPage() {
 
   const [userStatusFilter, setUserStatusFilter] = useState<PerformanceStatus | 'ALL' | null>(null);
   const [categorySearch, setCategorySearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<InstitutionCategoryDetail | null>(null);
   const [modalCategory, setModalCategory] = useState<InstitutionCategoryDetail | null>(null);
 
   // Effective status filter: user selection takes precedence, otherwise fallback to URL filter
@@ -75,15 +73,6 @@ export default function InstitutionDetailPage() {
     return list;
   }, [allCategories, categorySearch, categoryStatusFilter]);
 
-  // Load department performance metrics based on selected category (or overall)
-  const departmentBreakdown = useMemo(() => {
-    if (!institution) return { departments: [], isOverall: true, isUnavailable: false };
-    return scorecardRepository.getDepartmentCategoryPerformance(
-      institution.id,
-      selectedCategory?.id
-    );
-  }, [institution, selectedCategory]);
-
   if (!institution) {
     return (
       <div className="p-8 text-center space-y-4">
@@ -100,10 +89,6 @@ export default function InstitutionDetailPage() {
     );
   }
 
-  const totalFaculty = institution.departments.reduce((acc, d) => acc + d.facultyCount, 0);
-  const totalStudents = institution.departments.reduce((acc, d) => acc + d.studentCount, 0);
-  const totalSanctionedFaculty = Math.round(totalFaculty * 1.08);
-  const totalVacancies = totalSanctionedFaculty - totalFaculty;
   const campusHref =
     institution.campus === 'Trichy'
       ? '/institutions/campus/trichy'
@@ -117,16 +102,8 @@ export default function InstitutionDetailPage() {
   };
 
   const handleSelectCategory = (cat: InstitutionCategoryDetail) => {
-    if (selectedCategory?.id === cat.id) {
-      setSelectedCategory(null); // toggle off
-    } else {
-      setSelectedCategory(cat);
-      // Smooth scroll to department section
-      const deptSection = document.getElementById('department-performance-section');
-      if (deptSection) {
-        deptSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
+    // Navigate to the new parameter drill-down page
+    router.push(`/institutions/${institution.id}/parameters/${cat.id}`);
   };
 
   return (
@@ -186,6 +163,8 @@ export default function InstitutionDetailPage() {
 
         {/* Status Tally + High-level Stats */}
         <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+          {/* Status Tally — greenCount/orangeCount/redCount are explicitly defined
+              in the InstitutionSummary mock data, not derived from departments */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px]">
             <button
               onClick={() => setCategoryStatusFilter(categoryStatusFilter === 'GREEN' ? 'ALL' : 'GREEN')}
@@ -221,15 +200,9 @@ export default function InstitutionDetailPage() {
             </button>
           </div>
 
+          {/* Secondary stats — only explicitly defined mock values */}
           <div className="flex items-center gap-3 text-[11px] text-slate-500 font-mono">
             <span><strong className="text-slate-700 dark:text-slate-300">{institution.departmentCount}</strong> Depts</span>
-            <span><strong className="text-slate-700 dark:text-slate-300">{totalFaculty}</strong> Faculty</span>
-            <span><strong className="text-slate-700 dark:text-slate-300">{totalStudents.toLocaleString()}</strong> Students</span>
-            {totalVacancies > 0 && (
-              <span className="text-amber-600 dark:text-amber-400 font-semibold" title={`${totalVacancies} Sanctioned Positions Open`}>
-                {totalVacancies} Vacancies
-              </span>
-            )}
             <TrendIndicator delta={institution.trendDelta} size="sm" label="vs Prev AY" />
           </div>
         </div>
@@ -346,7 +319,6 @@ export default function InstitutionDetailPage() {
             <ParameterCard
               key={cat.id}
               category={cat}
-              isSelected={selectedCategory?.id === cat.id}
               onSelect={handleSelectCategory}
               onOpenDetails={(c) => setModalCategory(c)}
             />
@@ -354,33 +326,19 @@ export default function InstitutionDetailPage() {
         </div>
 
         <p className="text-[10px] text-slate-400 font-mono text-center pt-1">
-          💡 Click any card to filter the Department Breakdown below · Click &quot;Details&quot; for in-depth sub-metrics
+          💡 Click any parameter card to open its department drill-down · Click &quot;Details&quot; for key sub-metrics
         </p>
+
       </div>
 
-      {/* ── 3. CONSTITUENT DEPARTMENTS (BELOW PERFORMANCE PARAMETERS) ── */}
-      <div id="department-performance-section">
-        <DepartmentPerformanceGrid
-          institutionId={institution.id}
-          departments={departmentBreakdown.departments}
-          selectedCategory={selectedCategory || undefined}
-          isUnavailable={departmentBreakdown.isUnavailable}
-          onClearCategorySelection={() => setSelectedCategory(null)}
-        />
-      </div>
-
-      {/* ── 4. PARAMETER DETAIL MODAL ── */}
+      {/* ── 3. PARAMETER DETAIL MODAL ── */}
       <ParameterDetailModal
         category={modalCategory}
         institutionName={institution.shortName}
         isOpen={Boolean(modalCategory)}
         onClose={() => setModalCategory(null)}
         onSelectForDrillDown={(c) => {
-          setSelectedCategory(c);
-          const deptSection = document.getElementById('department-performance-section');
-          if (deptSection) {
-            deptSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
+          router.push(`/institutions/${institution.id}/parameters/${c.id}`);
         }}
       />
     </div>

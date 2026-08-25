@@ -143,7 +143,7 @@ export default function OverviewPage() {
         </div>
       </div>
 
-      {/* SECTION 1 — CHENNAI RAMAPURAM CAMPUS */}
+      {/* SECTION 1 — CHENNAI RAMAPURAM CAMPUS (blue accent) */}
       <InstitutionSection
         title="Chennai – Ramapuram Campus"
         campusSlug="ramapuram"
@@ -151,19 +151,19 @@ export default function OverviewPage() {
         dotColor="bg-blue-600 dark:bg-blue-500"
       />
 
-      {/* SECTION 2 — TIRUCHIRAPPALLI CAMPUS */}
+      {/* SECTION 2 — TIRUCHIRAPPALLI CAMPUS (indigo accent) */}
       <InstitutionSection
         title="Tiruchirappalli Campus"
         campusSlug="trichy"
         institutions={trichyInstitutions}
-        dotColor="bg-blue-600 dark:bg-blue-500"
+        dotColor="bg-indigo-600 dark:bg-indigo-500"
       />
 
-      {/* SECTION 3 — SCHOOL (West Mambalam) */}
+      {/* SECTION 3 — SCHOOL (West Mambalam) (violet accent) */}
       <InstitutionSection
         title="West Mambalam – School"
         institutions={schoolInstitutions}
-        dotColor="bg-blue-600 dark:bg-blue-500"
+        dotColor="bg-violet-600 dark:bg-violet-500"
         isSchool
       />
     </div>

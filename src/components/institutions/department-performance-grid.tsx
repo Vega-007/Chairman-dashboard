@@ -44,7 +44,7 @@ export const DepartmentPerformanceGrid: React.FC<DepartmentPerformanceGridProps>
 }) => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<PerformanceStatus | 'ALL'>('ALL');
-  const [sortBy, setSortBy] = useState<'SCORE_DESC' | 'SCORE_ASC' | 'NAME_ASC' | 'FACULTY_DESC'>('SCORE_DESC');
+  const [sortBy, setSortBy] = useState<'SCORE_DESC' | 'SCORE_ASC' | 'NAME_ASC' | 'CODE_ASC'>('SCORE_DESC');
 
   // Flag workflow state
   const [flaggingDept, setFlaggingDept] = useState<DepartmentCategoryMetric | null>(null);
@@ -91,8 +91,8 @@ export const DepartmentPerformanceGrid: React.FC<DepartmentPerformanceGridProps>
       case 'NAME_ASC':
         list.sort((a, b) => a.departmentName.localeCompare(b.departmentName));
         break;
-      case 'FACULTY_DESC':
-        list.sort((a, b) => b.facultyCount - a.facultyCount);
+      case 'CODE_ASC':
+        list.sort((a, b) => a.departmentCode.localeCompare(b.departmentCode));
         break;
     }
 
@@ -132,91 +132,6 @@ export const DepartmentPerformanceGrid: React.FC<DepartmentPerformanceGridProps>
     setFlaggingDept(null);
   };
 
-  if (isUnavailable && selectedCategory) {
-    return (
-      <div className={cn('bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-lg p-6 shadow-xs space-y-4', className)}>
-        <div className="text-center space-y-2">
-          <Layers className="w-8 h-8 text-slate-400 mx-auto" />
-          <div className="space-y-1">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Department-level data unavailable</h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Parameter-specific metrics for <strong>{selectedCategory.name} ({selectedCategory.code})</strong> are not currently available at the department level in the dataset.
-            </p>
-          </div>
-        </div>
-
-        {/* Operational intervention registry for constituent departments */}
-        <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden max-w-xl mx-auto">
-          <div className="bg-slate-50 dark:bg-slate-850 p-2.5 border-b border-slate-200 dark:border-slate-800 text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">
-            Intervention Registry — Constituent Departments
-          </div>
-          <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-[220px] overflow-y-auto">
-            {departments.map((dept) => {
-              const isFlagged = flags.some(
-                (f) =>
-                  f.departmentId === dept.departmentId &&
-                  f.parameterId === selectedCategory.id &&
-                  f.status !== 'RESOLVED'
-              );
-              return (
-                <div key={dept.departmentId} className="p-2.5 flex items-center justify-between text-xs hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                  <div className="min-w-0 pr-4">
-                    <span className="font-semibold text-slate-850 dark:text-slate-200 block truncate">{dept.departmentName}</span>
-                    <span className="text-[9px] text-slate-400 font-mono">{dept.departmentCode}</span>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {isFlagged ? (
-                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[9px] font-bold bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-450 border border-rose-250 dark:border-rose-900">
-                        ⚑ FLAGGED
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={(e) => handleFlagClick(e, dept)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-rose-900 hover:bg-rose-800 text-[10px] font-bold text-white transition-colors"
-                      >
-                        <Flag className="w-2.5 h-2.5" />
-                        <span>Flag ⚑</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="text-center">
-          {onClearCategorySelection && (
-            <button
-              type="button"
-              onClick={onClearCategorySelection}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>Reset to Overall View</span>
-            </button>
-          )}
-        </div>
-
-        {/* Flag intervention modal */}
-        <FlagModal
-          isOpen={Boolean(flaggingDept)}
-          onClose={() => setFlaggingDept(null)}
-          onSubmit={handleFlagSubmit}
-          institutionName={institutionName}
-          departmentName={flaggingDept ? flaggingDept.departmentName : ''}
-          parameterName={selectedCategory ? selectedCategory.name : 'Overall Performance'}
-          parameterCode={selectedCategory ? selectedCategory.code : 'OVERALL'}
-          currentStatus={flaggingDept ? flaggingDept.status : 'GREEN'}
-          targetValue={selectedCategory ? selectedCategory.target : 100}
-          actualValue={flaggingDept ? flaggingDept.actual : 0}
-          unit={selectedCategory ? selectedCategory.unit : '%'}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className={cn('bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-lg p-4 shadow-xs space-y-3.5', className)}>
       {/* Contextual Header */}
@@ -227,7 +142,7 @@ export const DepartmentPerformanceGrid: React.FC<DepartmentPerformanceGridProps>
             <h2 className="text-sm font-extrabold text-slate-950 dark:text-white tracking-tight">
               {selectedCategory ? (
                 <span>
-                  Department Performance —{' '}
+                  Department Breakdown —{' '}
                   <span className="text-blue-700 dark:text-blue-400">{selectedCategory.name}</span>
                 </span>
               ) : (
@@ -242,7 +157,7 @@ export const DepartmentPerformanceGrid: React.FC<DepartmentPerformanceGridProps>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
             {selectedCategory ? (
               <span>
-                Viewing departmental breakdown for <strong>{selectedCategory.name} ({selectedCategory.code})</strong>. Target: {selectedCategory.target} {selectedCategory.unit}.
+                Viewing constituent departments for <strong>{selectedCategory.name} ({selectedCategory.code})</strong>. Target: {selectedCategory.target} {selectedCategory.unit}.
               </span>
             ) : (
               <span>Institutional breakdown showing overall performance index across all units. Target is 100%.</span>
@@ -250,19 +165,43 @@ export const DepartmentPerformanceGrid: React.FC<DepartmentPerformanceGridProps>
           </p>
         </div>
 
-        {/* Small count badge strip */}
-        <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold shrink-0">
-          <span className="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/60">
-            {greenCount} Achieved
-          </span>
-          <span className="px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-100 dark:border-amber-900/60">
-            {orangeCount} Improve
-          </span>
-          <span className="px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-100 dark:border-rose-900/60">
-            {redCount} Action
-          </span>
+        {/* Right side: Count badges + Deselect button */}
+        <div className="flex items-center gap-2 flex-wrap shrink-0">
+          <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold">
+            <span className="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/60">
+              {greenCount} Achieved
+            </span>
+            <span className="px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-100 dark:border-amber-900/60">
+              {orangeCount} Improve
+            </span>
+            <span className="px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-100 dark:border-rose-900/60">
+              {redCount} Action
+            </span>
+          </div>
+
+          {selectedCategory && onClearCategorySelection && (
+            <button
+              type="button"
+              onClick={onClearCategorySelection}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
+              title="Close department breakdown"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Close Breakdown</span>
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Unavailable parameter-specific notice banner */}
+      {isUnavailable && selectedCategory && (
+        <div className="flex items-center gap-2 p-2.5 rounded-md bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-300 text-xs">
+          <Layers className="w-4 h-4 text-amber-600 shrink-0" />
+          <span>
+            <strong>Department-level data unavailable:</strong> Parameter-specific metrics for <strong>{selectedCategory.name} ({selectedCategory.code})</strong> are not available at department level. Showing constituent departments overall status.
+          </span>
+        </div>
+      )}
 
       {/* Filter and search bar controls */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
@@ -302,14 +241,14 @@ export const DepartmentPerformanceGrid: React.FC<DepartmentPerformanceGridProps>
           {/* Sort selection */}
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'SCORE_DESC' | 'SCORE_ASC' | 'NAME_ASC' | 'FACULTY_DESC')}
+            onChange={(e) => setSortBy(e.target.value as 'SCORE_DESC' | 'SCORE_ASC' | 'NAME_ASC' | 'CODE_ASC')}
             className="px-2 py-1 bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-md font-medium text-slate-700 dark:text-slate-200"
             aria-label="Sort order"
           >
             <option value="SCORE_DESC">Highest Score</option>
             <option value="SCORE_ASC">Lowest Score</option>
             <option value="NAME_ASC">Department Name</option>
-            <option value="FACULTY_DESC">Largest Faculty Size</option>
+            <option value="CODE_ASC">Department Code</option>
           </select>
         </div>
       </div>
@@ -342,8 +281,6 @@ export const DepartmentPerformanceGrid: React.FC<DepartmentPerformanceGridProps>
               ? Math.min(dept.achievementPercentage, 100)
               : 0;
 
-            const isVacancyNumber = typeof dept.openVacancies === 'number';
-
             // Check if this department-parameter combination is currently flagged
             const isFlagged = flags.some(
               (f) =>
@@ -357,13 +294,13 @@ export const DepartmentPerformanceGrid: React.FC<DepartmentPerformanceGridProps>
                 key={dept.departmentId}
                 href={`/institutions/${institutionId}/departments/${dept.departmentId}`}
                 className={cn(
-                  'group p-3 rounded-lg border bg-white dark:bg-slate-900/60 flex flex-col justify-between transition-all duration-150 relative overflow-hidden',
-                  'hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-xs',
+                  'group p-3 rounded-lg border flex flex-col justify-between transition-all duration-150 relative overflow-hidden',
+                  'hover:shadow-sm',
                   dept.status === 'RED'
-                    ? 'border-l-4 border-l-rose-500 border-slate-200/90 dark:border-slate-800'
+                    ? 'border-l-[3px] border-l-rose-600 bg-rose-50/20 dark:bg-rose-950/10 border-rose-200/70 dark:border-rose-900 hover:bg-rose-50/35 dark:hover:bg-rose-950/18 hover:shadow-[0_1px_8px_rgba(239,68,68,0.14)]'
                     : dept.status === 'ORANGE'
-                    ? 'border-l-4 border-l-amber-500 border-slate-200/90 dark:border-slate-800'
-                    : 'border-l-4 border-l-emerald-500 border-slate-200/90 dark:border-slate-800'
+                    ? 'border-l-[3px] border-l-amber-500 bg-amber-50/20 dark:bg-amber-950/10 border-amber-200/70 dark:border-amber-900 hover:bg-amber-50/35 dark:hover:bg-amber-950/18 hover:shadow-[0_1px_8px_rgba(245,158,11,0.13)]'
+                    : 'border-l-[3px] border-l-emerald-500 bg-emerald-50/15 dark:bg-emerald-950/10 border-emerald-200/70 dark:border-emerald-900 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/18 hover:shadow-[0_1px_8px_rgba(16,185,129,0.12)]'
                 )}
                 title={`View ${dept.departmentName} full department scorecard`}
               >
@@ -425,22 +362,9 @@ export const DepartmentPerformanceGrid: React.FC<DepartmentPerformanceGridProps>
                   </div>
                 </div>
 
-                {/* Footer: Faculty / Students / Vacancies + Arrow */}
-                <div className="flex items-center justify-between text-[9px] text-slate-400 mt-2.5 pt-1.5 border-t border-slate-100 dark:border-slate-800/80 font-mono">
-                  <div className="flex items-center gap-1.5">
-                    <span>{dept.facultyCount} Fac</span>
-                    <span className="text-slate-300 dark:text-slate-700">·</span>
-                    <span>{dept.studentCount} Stu</span>
-                    {isVacancyNumber && (dept.openVacancies as number) > 0 && (
-                      <>
-                        <span className="text-slate-300 dark:text-slate-700">·</span>
-                        <span className="text-amber-600 dark:text-amber-400 font-semibold">
-                          {dept.openVacancies} Vac
-                        </span>
-                      </>
-                    )}
-                  </div>
-
+                {/* Footer: trend + arrow only; facultyCount/studentCount are
+                    fabricated by generateMockDepartments and must not be shown */}
+                <div className="flex items-center justify-end text-[9px] text-slate-400 mt-2.5 pt-1.5 border-t border-slate-100 dark:border-slate-800/80 font-mono">
                   <div className="flex items-center gap-1">
                     {dept.trend !== 'Not available' && (
                       <span className="flex items-center gap-0.5">

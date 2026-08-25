@@ -221,85 +221,6 @@ export function getCategoryByIdOrSlug(idOrSlug: string): PerformanceCategorySumm
   );
 }
 
-// Helper: Generate all 19 constituent institution performance records for a given category
-export function getCategoryInstitutionBreakdown(idOrSlug: string): InstitutionCategoryPerformance[] {
-  const category = getCategoryByIdOrSlug(idOrSlug) || MOCK_PERFORMANCE_CATEGORIES[0];
-  
-  return MOCK_INSTITUTIONS.map((inst, idx) => {
-    // Generate deterministic target and actual based on category unit and institution overall score
-    let instTarget = Math.round((category.target / 19) * (0.85 + (idx % 5) * 0.08));
-    if (category.unit.startsWith('%')) {
-      instTarget = 100;
-    }
-
-    // Variation based on institution overall performance
-    const scoreFactor = inst.overallScore / 100;
-    const variation = ((idx % 3) - 1) * 0.04;
-    const actual = Math.min(
-      Math.max(Math.round(instTarget * (scoreFactor + variation) * 10) / 10, 0),
-      instTarget * 1.05
-    );
-
-    const statusResult = computePerformanceStatus(actual, instTarget);
-    const gap = Math.round((actual - instTarget) * 10) / 10;
-    const trend = Math.round(((idx % 5) - 2) * 1.8 * 10) / 10;
-
-    return {
-      institutionId: inst.id,
-      institutionName: inst.name,
-      institutionShortName: inst.shortName,
-      code: inst.code,
-      campus: inst.campus,
-      campusDisplayName: inst.campusDisplayName,
-      institutionType: inst.institutionType,
-      target: instTarget,
-      actual,
-      unit: category.unit,
-      achievementPercentage: statusResult.achievementPercentage,
-      status: statusResult.status,
-      gap,
-      trend,
-      is_mock: true,
-    };
-  });
-}
-
-// Helper: Compute Ramapuram vs Trichy comparison for a category
-export function getCategoryCampusComparison(idOrSlug: string): {
-  ramapuram: CategoryCampusComparison;
-  trichy: CategoryCampusComparison;
-} {
-  const breakdown = getCategoryInstitutionBreakdown(idOrSlug);
-  const ramapuramRecords = breakdown.filter((b) => b.campus === 'Ramapuram');
-  const trichyRecords = breakdown.filter((b) => b.campus === 'Trichy');
-
-  const calcCampus = (records: InstitutionCategoryPerformance[], campus: 'Ramapuram' | 'Trichy'): CategoryCampusComparison => {
-    const totalInsts = records.length;
-    const totalTarget = records.reduce((acc, r) => acc + r.target, 0);
-    const totalActual = records.reduce((acc, r) => acc + r.actual, 0);
-    const statusRes = computePerformanceStatus(totalActual, totalTarget);
-    
-    return {
-      campus,
-      displayName: campus === 'Ramapuram' ? 'Chennai – Ramapuram' : 'Tiruchirappalli',
-      totalInstitutions: totalInsts,
-      actual: Math.round(totalActual * 10) / 10,
-      target: Math.round(totalTarget * 10) / 10,
-      achievementPercentage: statusRes.achievementPercentage,
-      status: statusRes.status,
-      gap: Math.round((totalActual - totalTarget) * 10) / 10,
-      greenCount: records.filter((r) => r.status === 'GREEN').length,
-      orangeCount: records.filter((r) => r.status === 'ORANGE').length,
-      redCount: records.filter((r) => r.status === 'RED').length,
-    };
-  };
-
-  return {
-    ramapuram: calcCampus(ramapuramRecords, 'Ramapuram'),
-    trichy: calcCampus(trichyRecords, 'Trichy'),
-  };
-}
-
 // Prioritized Chairman's Attention Required Queue
 export const MOCK_ATTENTION_ITEMS: AttentionItem[] = [
   // 1. RED items (Critical Action Required)
@@ -516,6 +437,175 @@ export const MOCK_ATTENTION_ITEMS: AttentionItem[] = [
     is_mock: true,
   },
 ];
+
+// Helper: Generate all 19 constituent institution performance records for a given category
+export function getCategoryInstitutionBreakdown(idOrSlug: string): InstitutionCategoryPerformance[] {
+  const category = getCategoryByIdOrSlug(idOrSlug) || MOCK_PERFORMANCE_CATEGORIES[0];
+  
+  return MOCK_INSTITUTIONS.map((inst, instIdx) => {
+    let instTarget = Math.round((category.target / 19) * (0.85 + (instIdx % 5) * 0.08));
+    if (category.unit.startsWith('%')) {
+      instTarget = 100;
+    }
+
+    // 1. Check explicit Attention Items
+    const attItem = MOCK_ATTENTION_ITEMS.find(
+      (a) =>
+        a.institutionId.toLowerCase() === inst.id.toLowerCase() &&
+        (a.categoryId === category.id || a.categorySlug === category.slug || a.categoryCode === category.code)
+    );
+    if (attItem) {
+      const gap = Math.round((attItem.actual - attItem.target) * 10) / 10;
+      return {
+        institutionId: inst.id,
+        institutionName: inst.name,
+        institutionShortName: inst.shortName,
+        code: inst.code,
+        campus: inst.campus,
+        campusDisplayName: inst.campusDisplayName,
+        institutionType: inst.institutionType,
+        target: attItem.target,
+        actual: attItem.actual,
+        unit: category.unit,
+        achievementPercentage: attItem.achievementPercentage,
+        status: attItem.status,
+        gap,
+        trend: attItem.trend,
+        is_mock: true,
+      };
+    }
+
+    // 2. Check topCategory
+    if (inst.topCategory && inst.topCategory.toLowerCase().includes(category.name.toLowerCase().slice(0, 4))) {
+      const match = inst.topCategory.match(/([0-9.]+)%/);
+      const pct = match ? parseFloat(match[1]) : 95.0;
+      const actual = category.unit.startsWith('%') ? pct : Math.round(instTarget * (pct / 100) * 10) / 10;
+      return {
+        institutionId: inst.id,
+        institutionName: inst.name,
+        institutionShortName: inst.shortName,
+        code: inst.code,
+        campus: inst.campus,
+        campusDisplayName: inst.campusDisplayName,
+        institutionType: inst.institutionType,
+        target: instTarget,
+        actual,
+        unit: category.unit,
+        achievementPercentage: pct,
+        status: 'GREEN',
+        gap: Math.round((actual - instTarget) * 10) / 10,
+        trend: 3.2,
+        is_mock: true,
+      };
+    }
+
+    // 3. Check lowestCategory
+    if (inst.lowestCategory && inst.lowestCategory.toLowerCase().includes(category.name.toLowerCase().slice(0, 4))) {
+      const match = inst.lowestCategory.match(/([0-9.]+)%/);
+      const pct = match ? parseFloat(match[1]) : (inst.redCount > 0 ? 58.0 : 76.0);
+      const actual = category.unit.startsWith('%') ? pct : Math.round(instTarget * (pct / 100) * 10) / 10;
+      const status: 'GREEN' | 'ORANGE' | 'RED' = pct >= 90 ? 'GREEN' : pct >= 70 ? 'ORANGE' : 'RED';
+      return {
+        institutionId: inst.id,
+        institutionName: inst.name,
+        institutionShortName: inst.shortName,
+        code: inst.code,
+        campus: inst.campus,
+        campusDisplayName: inst.campusDisplayName,
+        institutionType: inst.institutionType,
+        target: instTarget,
+        actual,
+        unit: category.unit,
+        achievementPercentage: pct,
+        status,
+        gap: Math.round((actual - instTarget) * 10) / 10,
+        trend: -2.8,
+        is_mock: true,
+      };
+    }
+
+    // 4. Deterministic assignment across 14 categories matching inst.redCount, inst.orangeCount, inst.greenCount
+    const rank = (category.displayOrder * 5 + instIdx * 7) % 14;
+
+    let pct: number;
+    let status: 'GREEN' | 'ORANGE' | 'RED';
+
+    if (rank < inst.redCount) {
+      status = 'RED';
+      pct = Math.round((50 + ((rank % 3) * 6.5)) * 10) / 10;
+    } else if (rank < inst.redCount + inst.orangeCount) {
+      status = 'ORANGE';
+      const oRank = rank - inst.redCount;
+      pct = Math.round((73 + (oRank * 3.2)) * 10) / 10;
+    } else {
+      status = 'GREEN';
+      const gRank = rank - (inst.redCount + inst.orangeCount);
+      pct = Math.round((90.5 + ((gRank % 4) * 2.1)) * 10) / 10;
+    }
+
+    const actual = category.unit.startsWith('%')
+      ? pct
+      : Math.round(instTarget * (pct / 100) * 10) / 10;
+
+    const trend = Math.round((((category.displayOrder + instIdx) % 5) - 2) * 1.6 * 10) / 10;
+
+    return {
+      institutionId: inst.id,
+      institutionName: inst.name,
+      institutionShortName: inst.shortName,
+      code: inst.code,
+      campus: inst.campus,
+      campusDisplayName: inst.campusDisplayName,
+      institutionType: inst.institutionType,
+      target: instTarget,
+      actual,
+      unit: category.unit,
+      achievementPercentage: pct,
+      status,
+      gap: Math.round((actual - instTarget) * 10) / 10,
+      trend,
+      is_mock: true,
+    };
+  });
+}
+
+// Helper: Compute Ramapuram vs Trichy comparison for a category
+export function getCategoryCampusComparison(idOrSlug: string): {
+  ramapuram: CategoryCampusComparison;
+  trichy: CategoryCampusComparison;
+} {
+  const breakdown = getCategoryInstitutionBreakdown(idOrSlug);
+  const ramapuramRecords = breakdown.filter((b) => b.campus === 'Ramapuram');
+  const trichyRecords = breakdown.filter((b) => b.campus === 'Trichy');
+
+  const calcCampus = (records: InstitutionCategoryPerformance[], campus: 'Ramapuram' | 'Trichy'): CategoryCampusComparison => {
+    const totalInsts = records.length;
+    const totalTarget = records.reduce((acc, r) => acc + r.target, 0);
+    const totalActual = records.reduce((acc, r) => acc + r.actual, 0);
+    const statusRes = computePerformanceStatus(totalActual, totalTarget);
+    
+    return {
+      campus,
+      displayName: campus === 'Ramapuram' ? 'Chennai – Ramapuram' : 'Tiruchirappalli',
+      totalInstitutions: totalInsts,
+      actual: Math.round(totalActual * 10) / 10,
+      target: Math.round(totalTarget * 10) / 10,
+      achievementPercentage: statusRes.achievementPercentage,
+      status: statusRes.status,
+      gap: Math.round((totalActual - totalTarget) * 10) / 10,
+      greenCount: records.filter((r) => r.status === 'GREEN').length,
+      orangeCount: records.filter((r) => r.status === 'ORANGE').length,
+      redCount: records.filter((r) => r.status === 'RED').length,
+    };
+  };
+
+  return {
+    ramapuram: calcCampus(ramapuramRecords, 'Ramapuram'),
+    trichy: calcCampus(trichyRecords, 'Trichy'),
+  };
+}
+
+
 
 // Helper: Get Attention Items filtered by campus, priority/status, category, or institution
 export function getFilteredAttentionItems(filters?: {

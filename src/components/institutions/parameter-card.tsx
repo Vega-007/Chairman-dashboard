@@ -8,7 +8,6 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { InstitutionCategoryDetail } from '@/lib/types/performance';
-import { getStatusColorClass } from '@/lib/utils/status';
 import { cn } from '@/lib/utils';
 
 interface ParameterCardProps {
@@ -18,13 +17,38 @@ interface ParameterCardProps {
   onOpenDetails: (category: InstitutionCategoryDetail) => void;
 }
 
+// Premium status styles: colored left border + soft ambient background tint
+const STATUS_STYLES = {
+  GREEN: {
+    card: 'border-l-[3px] border-l-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/10 border-emerald-200/80 dark:border-emerald-900 hover:border-emerald-300 dark:hover:border-emerald-800 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20',
+    dot: 'bg-emerald-600 dark:bg-emerald-400',
+    bar: 'bg-emerald-600 dark:bg-emerald-500',
+    text: 'text-emerald-700 dark:text-emerald-400',
+    selected: 'border-l-[3px] border-l-emerald-500 ring-2 ring-emerald-500/25 bg-emerald-50/40 dark:bg-emerald-950/25 shadow-sm border-emerald-300 dark:border-emerald-800',
+  },
+  ORANGE: {
+    card: 'border-l-[3px] border-l-amber-500 bg-amber-50/20 dark:bg-amber-950/10 border-amber-200/80 dark:border-amber-900 hover:border-amber-300 dark:hover:border-amber-800 hover:bg-amber-50/40 dark:hover:bg-amber-950/20',
+    dot: 'bg-amber-500 dark:bg-amber-400',
+    bar: 'bg-amber-500 dark:bg-amber-400',
+    text: 'text-amber-700 dark:text-amber-400',
+    selected: 'border-l-[3px] border-l-amber-500 ring-2 ring-amber-500/25 bg-amber-50/40 dark:bg-amber-950/25 shadow-sm border-amber-300 dark:border-amber-800',
+  },
+  RED: {
+    card: 'border-l-[3px] border-l-rose-600 bg-rose-50/20 dark:bg-rose-950/10 border-rose-200/80 dark:border-rose-900 hover:border-rose-300 dark:hover:border-rose-800 hover:bg-rose-50/40 dark:hover:bg-rose-950/20',
+    dot: 'bg-rose-600 dark:bg-rose-400',
+    bar: 'bg-rose-600 dark:bg-rose-500',
+    text: 'text-rose-700 dark:text-rose-400',
+    selected: 'border-l-[3px] border-l-rose-600 ring-2 ring-rose-500/25 bg-rose-50/40 dark:bg-rose-950/25 shadow-sm border-rose-300 dark:border-rose-800',
+  },
+} as const;
+
 export const ParameterCard: React.FC<ParameterCardProps> = ({
   category,
   isSelected = false,
   onSelect,
   onOpenDetails,
 }) => {
-  const colors = getStatusColorClass(category.status);
+  const colors = STATUS_STYLES[category.status];
 
   const trendIcon =
     category.trend === undefined || category.trend === null ? null : category.trend > 0 ? (
@@ -45,10 +69,8 @@ export const ParameterCard: React.FC<ParameterCardProps> = ({
     <div
       onClick={() => onSelect(category)}
       className={cn(
-        'group relative bg-white dark:bg-slate-900 border rounded-md p-2.5 transition-all duration-150 cursor-pointer flex flex-col justify-between select-none',
-        isSelected
-          ? 'border-blue-600 dark:border-blue-500 ring-2 ring-blue-600/20 shadow-sm bg-blue-50/20 dark:bg-blue-950/20'
-          : 'border-slate-200/90 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs'
+        'group relative border rounded-md p-2.5 transition-all duration-150 cursor-pointer flex flex-col justify-between select-none',
+        isSelected ? colors.selected : colors.card
       )}
       role="button"
       tabIndex={0}

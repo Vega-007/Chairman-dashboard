@@ -97,7 +97,14 @@ export const Sidebar: React.FC = () => {
           className="flex items-center gap-2.5 overflow-hidden group focus:outline-none focus:ring-2 focus:ring-blue-600/30 rounded"
         >
           {!isSidebarCollapsed ? (
-            <Image src="/Final-Logo.png" alt="SRM Logo" width={120} height={32} className="h-8 w-auto object-contain" priority />
+            <Image 
+              src="/Final-Logo.png" 
+              alt="SRM Logo" 
+              width={180} 
+              height={48} 
+              style={{ width: 'auto', height: '48px' }} 
+              priority 
+            />
           ) : (
             <InstitutionLogo
               institutionIdOrCode="srm-group"
