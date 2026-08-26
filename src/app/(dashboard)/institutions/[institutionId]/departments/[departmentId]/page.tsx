@@ -1,223 +1,291 @@
 'use client';
 
-import React from 'react';
-import { useParams } from 'next/navigation';
+import React, { useState, useMemo } from 'react';
+import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {
-  ArrowLeft,
-  Users,
-  GraduationCap,
-  Layers,
-  Building,
-} from 'lucide-react';
-import { getDepartmentById } from '@/data/mock/institutions.mock';
-import { MOCK_PERFORMANCE_CATEGORIES } from '@/data/mock/performance.mock';
+import { Search, X, MapPin, ArrowLeft, Award, ChevronRight } from 'lucide-react';
 import { PageHeader } from '@/components/primitives/page-header';
-import { StatusBadge } from '@/components/primitives/status-badge';
-import { AchievementBar } from '@/components/primitives/achievement-bar';
-import { MetricCard } from '@/components/primitives/metric-card';
-import { InstitutionLogo } from '@/components/primitives/institution-logo';
-import { DepartmentBadge } from '@/components/primitives/department-badge';
+import { TrendIndicator, InstitutionLogo, StatusBadge } from '@/components/primitives';
+import { getInstitutionById } from '@/data/mock/institutions.mock';
+import { scorecardRepository } from '@/lib/data-access/scorecard.repository';
+import { InstitutionCategoryDetail } from '@/lib/types/performance';
+import { PerformanceStatus } from '@/lib/types/common';
+import { ParameterCard } from '@/components/institutions/parameter-card';
+import { ParameterDetailModal } from '@/components/institutions/parameter-detail-modal';
+import { cn } from '@/lib/utils';
 
-export default function DepartmentDetailPage() {
+export default function DepartmentScorecardPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const institutionId = typeof params?.institutionId === 'string' ? params.institutionId : '';
   const departmentId = typeof params?.departmentId === 'string' ? params.departmentId : '';
+  
+  const institution = getInstitutionById(institutionId);
+  const department = institution?.departments.find(
+    (d) => d.id.toLowerCase() === departmentId.toLowerCase() || d.code.toLowerCase() === departmentId.toLowerCase()
+  );
 
-  const result = getDepartmentById(institutionId, departmentId);
+  // Status filter from URL query param (?filter=achieved | improvement | action)
+  const urlFilter = searchParams.get('filter');
+  const defaultStatusFilter: PerformanceStatus | 'ALL' =
+    urlFilter === 'achieved'
+      ? 'GREEN'
+      : urlFilter === 'improvement'
+      ? 'ORANGE'
+      : urlFilter === 'action'
+      ? 'RED'
+      : 'ALL';
 
-  if (!result) {
+  const [userStatusFilter, setUserStatusFilter] = useState<PerformanceStatus | 'ALL' | null>(null);
+  const [categorySearch, setCategorySearch] = useState('');
+  const [modalCategory, setModalCategory] = useState<InstitutionCategoryDetail | null>(null);
+
+  // Effective status filter: user selection takes precedence, otherwise fallback to URL filter
+  const categoryStatusFilter = userStatusFilter !== null ? userStatusFilter : defaultStatusFilter;
+  const setCategoryStatusFilter = (val: PerformanceStatus | 'ALL') => setUserStatusFilter(val);
+
+  // Load all 14 categories for this department
+  const allCategories = useMemo(() => {
+    if (!institution || !department) return [];
+    return scorecardRepository.getDepartmentScorecard(institution.id, department.id);
+  }, [institution, department]);
+
+  // Filtered categories
+  const filteredCategories = useMemo(() => {
+    let list = [...allCategories];
+
+    if (categorySearch.trim()) {
+      const q = categorySearch.toLowerCase().trim();
+      list = list.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) ||
+          c.code.toLowerCase().includes(q) ||
+          c.description.toLowerCase().includes(q)
+      );
+    }
+
+    if (categoryStatusFilter !== 'ALL') {
+      list = list.filter((c) => c.status === categoryStatusFilter);
+    }
+
+    return list;
+  }, [allCategories, categorySearch, categoryStatusFilter]);
+
+  if (!institution || !department) {
     return (
       <div className="p-8 text-center space-y-4">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">Department Not Found</h2>
-        <p className="text-xs text-slate-500">
-          The requested department ID &quot;{departmentId}&quot; under institution &quot;{institutionId}&quot; does not exist.
-        </p>
+        <p className="text-xs text-slate-500">The requested department does not exist in the dataset.</p>
         <Link
-          href={`/institutions/${institutionId}`}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-blue-900 text-white"
+          href={`/institutions/${institutionId}/departments`}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-semibold bg-blue-900 text-white"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Institution Scorecard</span>
+          <span>Back to Departments</span>
         </Link>
       </div>
     );
   }
 
-  const { institution, department } = result;
+  const campusHref =
+    institution.campus === 'Trichy'
+      ? '/institutions/campus/trichy'
+      : institution.campus === 'Ramapuram'
+      ? '/institutions/campus/ramapuram'
+      : '/overview';
 
-  // Faculty-to-Student Ratio
-  const ratio = Math.round(department.studentCount / department.facultyCount);
+  const clearUrlFilter = () => {
+    setCategoryStatusFilter('ALL');
+    router.push(`/institutions/${institution.id}`);
+  };
+
+  const handleSelectCategory = (cat: InstitutionCategoryDetail) => {
+    // Navigate to the new parameter drill-down page
+    router.push(`/institutions/${institution.id}/parameters/${cat.id}`);
+  };
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Executive Page Header with Full Hierarchy Breadcrumb */}
-      <PageHeader
-        title={department.name}
-        subtitle={`Constituent Department of ${institution.shortName} · ${institution.campusDisplayName} Campus`}
-        breadcrumbs={[
-          { label: 'SRM Group', href: '/overview' },
-          { label: 'Institutions', href: '/institutions' },
-          { label: institution.campusDisplayName, href: `/institutions?campus=${institution.campus}` },
-          { label: institution.shortName, href: `/institutions/${institution.id}` },
-          { label: department.name, isCurrent: true },
-        ]}
-        status={department.status}
-        statusLabel={
-          department.status === 'GREEN'
-            ? 'Target Achieved'
-            : department.status === 'ORANGE'
-            ? 'Needs Improvement'
-            : 'Action Required'
-        }
-        actions={
-          <Link
-            href={`/institutions/${institution.id}`}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{institution.code} Scorecard</span>
-          </Link>
-        }
-      />
+    <div className="space-y-4 pb-12">
+      {/* ── 1. DEPARTMENT SCORECARD HEADER ── */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-lg shadow-xs">
+        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between">
+          <PageHeader
+            title={`${department.name} Performance Scorecard`}
+            subtitle="Department-level execution across 14 governance parameters"
+          />
 
-      {/* Top Department Intelligence Summary Card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-lg p-5 shadow-xs space-y-5">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-3.5">
-            <InstitutionLogo
-              institutionIdOrCode={institution.id}
-              name={institution.shortName}
-              size="lg"
-              shape="rounded"
-              className="bg-white"
-            />
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <DepartmentBadge name={department.name} id={department.id} size="sm" />
-                <span className="text-xs text-slate-500 font-medium">{institution.shortName}</span>
-                <span className="text-xs text-slate-400 font-medium">·</span>
-                <span className="text-xs text-slate-400 font-medium">{institution.campusDisplayName}</span>
+          <div className="flex items-center gap-2 mt-4 sm:mt-0 text-[10px] text-slate-500 font-mono">
+            <span>SRM Group</span>
+            <ChevronRight className="w-3 h-3 text-slate-300" />
+            <span>{institution.campusDisplayName}</span>
+            <ChevronRight className="w-3 h-3 text-slate-300" />
+            <Link href={`/institutions/${institution.id}/departments`} className="hover:text-blue-600 transition-colors">
+              {institution.code}
+            </Link>
+            <ChevronRight className="w-3 h-3 text-slate-300" />
+            <span className="font-semibold text-slate-900 dark:text-white">{department.code}</span>
+          </div>
+        </div>
+
+        {/* Institution Info Card */}
+        <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border-x border-b border-slate-200/60 dark:border-slate-800 rounded-b-xl shadow-xs">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <InstitutionLogo institutionIdOrCode={institution.id} name={institution.name} />
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-50 dark:bg-blue-950 text-blue-900 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                    {department.code}
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                    {institution.name}
+                  </span>
+                </div>
+                <h2 className="text-lg font-extrabold text-slate-950 dark:text-white">
+                  {department.name}
+                </h2>
               </div>
-              <h2 className="text-lg font-extrabold text-slate-950 dark:text-white">
-                {department.name}
-              </h2>
             </div>
-          </div>
 
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <span className="text-3xl font-extrabold text-slate-950 dark:text-white block font-mono">
-                {department.performanceScore.toFixed(1)}%
-              </span>
-              <span className="text-[11px] text-slate-400 font-medium">Department Achievement Score</span>
+            <div className="flex items-center gap-5">
+              <div className="text-right">
+                <span className="text-2xl font-extrabold text-slate-950 dark:text-white block font-mono">
+                  {department.performanceScore.toFixed(1)}%
+                </span>
+                <span className="text-[10px] text-slate-500 font-medium">Overall Score</span>
+              </div>
+              <div className="h-10 w-px bg-slate-200 dark:bg-slate-800"></div>
+              <StatusBadge status={department.status} />
             </div>
-            <StatusBadge status={department.status} size="lg" />
           </div>
         </div>
 
-        {/* Achievement Progress Bar */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-xs font-medium text-slate-600 dark:text-slate-300">
-            <span>Overall Department Target Progress</span>
-            <span className="font-mono font-bold text-slate-900 dark:text-white">
-              {department.performanceScore.toFixed(1)}% / 100%
-            </span>
-          </div>
-          <AchievementBar percentage={department.performanceScore} status={department.status} size="md" />
-        </div>
-
-        {/* 4 Stat Blocks */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-          <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
-            <div className="flex items-center gap-1.5 text-slate-400">
-              <Users className="w-3.5 h-3.5 text-blue-600" />
-              <span className="text-[10px] uppercase font-bold tracking-wider">Faculty Strength</span>
-            </div>
-            <span className="text-base font-extrabold text-slate-950 dark:text-white block">
-              {department.facultyCount} Members
-            </span>
-          </div>
-
-          <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
-            <div className="flex items-center gap-1.5 text-slate-400">
-              <GraduationCap className="w-3.5 h-3.5 text-indigo-600" />
-              <span className="text-[10px] uppercase font-bold tracking-wider">Student Enrolled</span>
-            </div>
-            <span className="text-base font-extrabold text-slate-950 dark:text-white block">
-              {department.studentCount.toLocaleString()} Students
-            </span>
-          </div>
-
-          <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
-            <div className="flex items-center gap-1.5 text-slate-400">
-              <Layers className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="text-[10px] uppercase font-bold tracking-wider">Faculty-Student Ratio</span>
-            </div>
-            <span className="text-base font-extrabold text-slate-950 dark:text-white block font-mono">
-              1 : {ratio}
-            </span>
-          </div>
-
-          <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
-            <div className="flex items-center gap-1.5 text-slate-400">
-              <Building className="w-3.5 h-3.5 text-amber-600" />
-              <span className="text-[10px] uppercase font-bold tracking-wider">Campus Location</span>
-            </div>
-            <span className="text-xs font-extrabold text-slate-950 dark:text-white block truncate">
-              {institution.campusDisplayName}
-            </span>
+        {/* Status Tally + High-level Stats */}
+        <div className="p-4 pt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-3 font-mono">
+            <button
+              type="button"
+              onClick={() => setCategoryStatusFilter(categoryStatusFilter === 'GREEN' ? 'ALL' : 'GREEN')}
+              className={cn(
+                'px-2 py-0.5 rounded transition-all font-semibold',
+                categoryStatusFilter === 'GREEN'
+                  ? 'bg-emerald-700 text-white'
+                  : 'text-emerald-700 dark:text-emerald-400 hover:underline'
+              )}
+            >
+              Achieved
+            </button>
+            <span>·</span>
+            <button
+              type="button"
+              onClick={() => setCategoryStatusFilter(categoryStatusFilter === 'ORANGE' ? 'ALL' : 'ORANGE')}
+              className={cn(
+                'px-2 py-0.5 rounded transition-all font-semibold',
+                categoryStatusFilter === 'ORANGE'
+                  ? 'bg-amber-700 text-white'
+                  : 'text-amber-700 dark:text-amber-400 hover:underline'
+              )}
+            >
+              Needs Impr.
+            </button>
+            <span>·</span>
+            <button
+              type="button"
+              onClick={() => setCategoryStatusFilter(categoryStatusFilter === 'RED' ? 'ALL' : 'RED')}
+              className={cn(
+                'px-2 py-0.5 rounded transition-all font-semibold',
+                categoryStatusFilter === 'RED'
+                  ? 'bg-rose-700 text-white'
+                  : 'text-rose-700 dark:text-rose-400 hover:underline'
+              )}
+            >
+              Action Req.
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Key Category Delivery Indicators (Sample Breakdown for Department) */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-lg p-5 shadow-xs space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div>
-            <h3 className="text-base font-bold text-slate-950 dark:text-white">
-              Departmental Category Indicators
-            </h3>
-            <p className="text-xs text-slate-500">
-              Performance metrics for {department.name} mapped across key category standards
-            </p>
+      {/* ── 2. KEY PERFORMANCE CATEGORIES (ALL 14 CATEGORIES) ── */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-lg p-4 shadow-xs space-y-3">
+        {/* Section Header & Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2">
+            <Award className="w-4 h-4 text-blue-700 dark:text-blue-400 shrink-0" />
+            <h2 className="text-sm font-extrabold text-slate-950 dark:text-white tracking-tight">
+              Key Performance Categories
+            </h2>
+            <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">
+              ({filteredCategories.length} of 14 Categories)
+            </span>
           </div>
-          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">
-            Illustrative demo values
-          </span>
+
+          <div className="relative min-w-0 sm:w-48">
+            <Search className="w-3 h-3 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={categorySearch}
+              onChange={(e) => setCategorySearch(e.target.value)}
+              placeholder="Search parameter..."
+              className="w-full pl-7 pr-6 py-1 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600/30 text-slate-900 dark:text-white placeholder:text-slate-400"
+            />
+            {categorySearch.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setCategorySearch('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-3.5">
-          {MOCK_PERFORMANCE_CATEGORIES.slice(0, 8).map((cat) => {
-            // Compute deterministic department variation around department performanceScore
-            const deptPct = Math.min(
-              Math.max(
-                Math.round(
-                  (department.performanceScore + ((cat.displayOrder % 3) - 1) * 3.2) * 10
-                ) / 10,
-                45
-              ),
-              98
-            );
-            const status =
-              deptPct >= 90 ? 'GREEN' : deptPct >= 70 ? 'ORANGE' : 'RED';
+        {/* Active Filter Reminder */}
+        {(categoryStatusFilter !== 'ALL' || categorySearch.trim().length > 0) && (
+          <div className="flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-md">
+            <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
+              Filtering parameters: <strong>{categoryStatusFilter !== 'ALL' ? categoryStatusFilter : 'Search'}</strong> ({filteredCategories.length} matched)
+            </span>
+            <button
+              onClick={clearUrlFilter}
+              className="text-[11px] text-blue-700 dark:text-blue-400 hover:underline font-semibold"
+            >
+              Reset Filters
+            </button>
+          </div>
+        )}
 
-            return (
-              <MetricCard
-                key={cat.id}
-                title={cat.name}
-                categoryCode={cat.code}
-                actual={Math.round((cat.target * deptPct) / 100)}
-                target={cat.target}
-                unit={cat.unit}
-                achievementPercentage={deptPct}
-                status={status}
-                trendDelta={cat.trend}
-              />
-            );
-          })}
+        {/* 14-Parameter Compact Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
+          {filteredCategories.map((cat) => (
+            <ParameterCard
+              key={cat.id}
+              category={cat}
+              isSelected={modalCategory?.id === cat.id}
+              onSelect={(cat) => router.push(`/institutions/${institution.id}/departments/${department.id}/parameters/${cat.slug}`)}
+              onOpenDetails={setModalCategory}
+            />
+          ))}
         </div>
+
+        <p className="text-[10px] text-slate-400 font-mono text-center pt-1">
+          💡 Click any parameter card to open its department drill-down · Click &quot;Details&quot; for key sub-metrics
+        </p>
+
       </div>
+
+      {/* ── 3. PARAMETER DETAIL MODAL ── */}
+      <ParameterDetailModal
+        category={modalCategory}
+        institutionName={institution.shortName}
+        isOpen={Boolean(modalCategory)}
+        onClose={() => setModalCategory(null)}
+        onSelectForDrillDown={(c) => {
+          router.push(`/institutions/${institution.id}/parameters/${c.id}`);
+        }}
+      />
     </div>
   );
 }

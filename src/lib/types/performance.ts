@@ -104,9 +104,9 @@ export interface InstitutionCategoryDetail {
   slug: string;
   description: string;
   target: number;
-  actual: number;
+  actual: number | string;
   unit: string;
-  achievementPercentage: number;
+  achievementPercentage: number | string;
   status: PerformanceStatus;
   trend: number;
   displayOrder: number;

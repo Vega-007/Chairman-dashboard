@@ -205,100 +205,111 @@ export default function ParameterDetailPage() {
           </div>
         </div>
 
-        {/* List */}
-        <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
-          {departments.map((dept) => {
-            const isExpanded = expandedDeptId === dept.departmentId;
-            // Apply Filters to Department Segregation
-            if (statusFilter !== 'ALL' && dept.status !== statusFilter) {
-              return null;
-            }
+        {/* List: Dense Grid Layout */}
+        <div className="p-4 bg-slate-50/30 dark:bg-slate-900/30">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {departments.map((dept) => {
+              const isExpanded = expandedDeptId === dept.departmentId;
+              // Apply Filters to Department Segregation
+              if (statusFilter !== 'ALL' && dept.status !== statusFilter) {
+                return null;
+              }
 
-            // Fetch mocked faculty data for filtering
-            const deptFacultyBreakdown = scorecardRepository.getFacultyCategoryPerformance(institution.id, dept.departmentId, category.id);
-            
-            // Apply Filters to Faculty
-            let deptFaculty = deptFacultyBreakdown.facultyMetrics;
-            if (statusFilter !== 'ALL') {
-              deptFaculty = deptFaculty.filter((f) => f.status === statusFilter);
-            }
-            if (zeroCountFilter === 'ZERO') {
-              deptFaculty = deptFaculty.filter((f) => f.zeroCountIndicator);
-            }
+              // Determine border color based on department status
+              let borderClass = 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600';
+              let badgeClass = 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
+              if (dept.status === 'GREEN') {
+                borderClass = 'border-emerald-200 dark:border-emerald-800/70 hover:border-emerald-300 dark:hover:border-emerald-700/70';
+                badgeClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400';
+              } else if (dept.status === 'ORANGE') {
+                borderClass = 'border-amber-200 dark:border-amber-800/70 hover:border-amber-300 dark:hover:border-amber-700/70';
+                badgeClass = 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400';
+              } else if (dept.status === 'RED') {
+                borderClass = 'border-rose-200 dark:border-rose-800/70 hover:border-rose-300 dark:hover:border-rose-700/70';
+                badgeClass = 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400';
+              }
 
-            // Determine left border color based on department status
-            let borderClass = 'border-l-[3px] border-l-slate-200 dark:border-l-slate-700';
-            if (dept.status === 'GREEN') borderClass = 'border-l-[3px] border-l-emerald-500';
-            else if (dept.status === 'ORANGE') borderClass = 'border-l-[3px] border-l-amber-500';
-            else if (dept.status === 'RED') borderClass = 'border-l-[3px] border-l-rose-500';
+              const isFlagged = flags.some((f) => f.departmentId === dept.departmentId && f.parameterId === category.id && f.status === 'FLAGGED');
 
-            const isFlagged = flags.some((f) => f.departmentId === dept.departmentId && f.parameterId === category.id && f.status === 'FLAGGED');
+              return (
+                <div key={dept.departmentId} className={cn("col-span-1", isExpanded ? "sm:col-span-2 md:col-span-3" : "")}>
+                  <div 
+                    className={cn(
+                      "flex items-center justify-between p-2.5 rounded-lg border bg-white dark:bg-slate-900 cursor-pointer transition-all shadow-2xs group",
+                      borderClass,
+                      isExpanded ? "ring-2 ring-blue-500/20 dark:ring-blue-400/20 shadow-sm" : ""
+                    )}
+                    onClick={() => setExpandedDeptId(isExpanded ? null : dept.departmentId)}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-mono font-bold shrink-0", badgeClass)}>
+                        {dept.departmentCode}
+                      </span>
+                      <h3 className="text-xs font-semibold text-slate-900 dark:text-white truncate" title={dept.departmentName}>
+                        {dept.departmentName}
+                      </h3>
+                    </div>
 
-            return (
-              <div key={dept.departmentId} className={cn("flex flex-col bg-white dark:bg-transparent border-t first:border-t-0 border-slate-100 dark:border-slate-800", borderClass)}>
-                <div 
-                  className={cn(
-                    "flex items-center justify-between px-4 py-2.5 cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 group",
-                    isExpanded ? "bg-blue-50/50 dark:bg-blue-900/10" : ""
-                  )}
-                  onClick={() => setExpandedDeptId(isExpanded ? null : dept.departmentId)}
-                >
-                  <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                    <span className="text-[11px] font-mono font-bold text-slate-400 dark:text-slate-500 w-10 sm:w-12 shrink-0">
-                      {dept.departmentCode}
-                    </span>
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white truncate">
-                      {dept.departmentName}
-                    </h3>
-                    <span className="text-[11px] text-slate-500 hidden sm:inline-block shrink-0">
-                      {dept.facultyCount} Faculty
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3 sm:gap-4 shrink-0 pl-2 sm:pl-4">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (!isFlagged) setFlaggingDept(dept);
-                      }}
-                      disabled={isFlagged}
-                      className={cn(
-                        "flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all focus:outline-none",
-                        isFlagged
-                          ? "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400 cursor-not-allowed"
-                          : "text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-                      )}
-                    >
-                      <Flag className={cn("w-3.5 h-3.5", isFlagged ? "fill-rose-200 dark:fill-rose-900/40" : "")} />
-                      <span className="hidden sm:inline-block">{isFlagged ? 'Flagged' : 'Flag'}</span>
-                    </button>
-                    
-                    <div className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 w-auto sm:w-20 text-right">
-                      {isExpanded ? 'Hide' : 'Drill-down'}
+                    <div className="flex items-center gap-2 shrink-0 pl-2">
+                      <span className="text-[10px] font-medium text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-1.5 py-0.5 rounded">
+                        {dept.facultyCount} Fac
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!isFlagged) setFlaggingDept(dept);
+                        }}
+                        disabled={isFlagged}
+                        className={cn(
+                          "flex items-center justify-center w-6 h-6 rounded-md transition-all focus:outline-none",
+                          isFlagged
+                            ? "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400 cursor-not-allowed"
+                            : "text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                        )}
+                        title={isFlagged ? 'Flagged' : 'Flag'}
+                      >
+                        <Flag className={cn("w-3 h-3", isFlagged ? "fill-rose-200 dark:fill-rose-900/40" : "")} />
+                      </button>
                     </div>
                   </div>
-                </div>
 
-                {isExpanded && (
-                  <div className="p-4 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
-                    {deptFacultyBreakdown.isUnavailable ? (
-                      <div className="py-8 text-center text-sm text-slate-500 border border-dashed border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-900">
-                        Faculty-level data unavailable
-                      </div>
-                    ) : (
-                      <FacultyPerformanceList 
-                        facultyMetrics={deptFaculty} 
-                        metricUnit={category.unit} 
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                  {isExpanded && (
+                    <div className="mt-2 p-3 bg-white dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
+                      {(() => {
+                        const deptFacultyBreakdown = scorecardRepository.getFacultyCategoryPerformance(institution.id, dept.departmentId, category.id);
+                        
+                        let deptFaculty = deptFacultyBreakdown.facultyMetrics;
+                        if (statusFilter !== 'ALL') {
+                          deptFaculty = deptFaculty.filter((f) => f.status === statusFilter);
+                        }
+                        if (zeroCountFilter === 'ZERO') {
+                          deptFaculty = deptFaculty.filter((f) => f.zeroCountIndicator);
+                        }
+
+                        if (deptFacultyBreakdown.isUnavailable) {
+                          return (
+                            <div className="py-6 text-center text-xs text-slate-500 border border-dashed border-slate-200 dark:border-slate-800 rounded-md bg-slate-50 dark:bg-slate-900">
+                              Faculty-level data unavailable
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <FacultyPerformanceList 
+                            facultyMetrics={deptFaculty} 
+                            metricUnit={category.unit} 
+                          />
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
           
           {departments.length === 0 && (
-             <div className="p-8 text-center text-sm text-slate-500">No departments found.</div>
+             <div className="py-8 text-center text-sm text-slate-500">No departments found.</div>
           )}
         </div>
       </div>

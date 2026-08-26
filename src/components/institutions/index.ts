@@ -6,3 +6,4 @@ export * from './parameter-detail-modal';
 export * from './department-performance-grid';
 export * from './flag-modal';
 export * from './action-plan-modal';
+export * from './campus-institution-card';

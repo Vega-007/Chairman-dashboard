@@ -22,7 +22,7 @@ import { FilterBar, FilterBarSortOption } from '@/components/primitives/filter-b
 import { ActiveFilterChips, ActiveChip } from '@/components/primitives/active-filter-chips';
 import { EmptyState } from '@/components/primitives/feedback-states';
 import { cn } from '@/lib/utils';
-import { InstitutionChairmanCard } from '@/components/dashboard';
+import { CampusInstitutionCard } from '@/components/institutions';
 
 export default function CampusDetailPage() {
   return (
@@ -37,8 +37,17 @@ function CampusDetailContent() {
   const searchParams = useSearchParams();
 
   const rawCampusId = typeof params?.campusId === 'string' ? params.campusId.toLowerCase() : '';
-  const campusName: CampusName = rawCampusId === 'trichy' ? 'Trichy' : 'Ramapuram';
-  const campusDisplayName = campusName === 'Ramapuram' ? 'Chennai – Ramapuram' : 'Tiruchirappalli';
+  
+  let campusName: CampusName = 'Ramapuram';
+  let campusDisplayName = 'Chennai – Ramapuram';
+  
+  if (rawCampusId === 'trichy') {
+    campusName = 'Trichy';
+    campusDisplayName = 'Tiruchirappalli';
+  } else if (rawCampusId === 'west-mambalam') {
+    campusName = 'School';
+    campusDisplayName = 'West Mambalam – School';
+  }
 
   // Read initial filter from URL query param if present (e.g. ?status=GREEN)
   const initialStatusParam = searchParams?.get('status') as PerformanceStatus | null;
@@ -382,7 +391,7 @@ function CampusDetailContent() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
           {filteredInstitutions.map((inst) => (
-            <InstitutionChairmanCard key={inst.id} institution={inst} />
+            <CampusInstitutionCard key={inst.id} institution={inst} />
           ))}
         </div>
       )}

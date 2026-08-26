@@ -119,7 +119,7 @@ export const ParameterCard: React.FC<ParameterCardProps> = ({
           <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
             <div
               className={cn('h-full rounded-full transition-all duration-300', colors.bar)}
-              style={{ width: `${Math.min(category.achievementPercentage, 100)}%` }}
+              style={{ width: `${typeof category.achievementPercentage === 'number' ? Math.min(category.achievementPercentage, 100) : 0}%` }}
             />
           </div>
         </div>
