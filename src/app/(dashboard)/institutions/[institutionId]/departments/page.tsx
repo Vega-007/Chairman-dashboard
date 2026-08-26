@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { PageHeader } from '@/components/primitives/page-header';
 import { getInstitutionById } from '@/data/mock/institutions.mock';
-import { Users, BookOpen } from 'lucide-react';
+import { Users, BookOpen, ArrowLeft, ChevronRight } from 'lucide-react';
 import { StatusBadge } from '@/components/primitives/status-badge';
 import { scorecardRepository } from '@/lib/data-access/scorecard.repository';
 import { InstitutionCategoryDetail } from '@/lib/types/performance';
@@ -28,18 +28,35 @@ export default function InstitutionDepartmentsPage() {
       ? '/institutions/campus/trichy'
       : institution.campus === 'Ramapuram'
       ? '/institutions/campus/ramapuram'
-      : '/institutions';
+      : '/institutions/campus/west-mambalam';
 
   return (
     <div className="space-y-6 pb-12">
+      {/* ── 0. UNIVERSAL BREADCRUMB ── */}
+      <nav className="flex items-center gap-2 text-[11px] font-medium text-slate-500 overflow-x-auto whitespace-nowrap pb-1">
+        <Link href="/overview" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">SRM Group</Link>
+        <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-700 shrink-0" />
+        <Link href="/institutions" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Institutions</Link>
+        <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-700 shrink-0" />
+        <Link href={campusHref} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{institution.campusDisplayName}</Link>
+        <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-700 shrink-0" />
+        <span className="text-slate-900 dark:text-white font-semibold">
+          {institution.code}
+        </span>
+      </nav>
+
       <PageHeader
         title={`${institution.name} Departments`}
         subtitle="Select a department to view parameter performance"
-        breadcrumbs={[
-          { label: 'Institutions', href: '/institutions' },
-          { label: institution.campusDisplayName, href: campusHref },
-          { label: institution.code, isCurrent: true },
-        ]}
+        actions={
+          <Link
+            href={`/institutions/${institution.id}`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to College</span>
+          </Link>
+        }
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">

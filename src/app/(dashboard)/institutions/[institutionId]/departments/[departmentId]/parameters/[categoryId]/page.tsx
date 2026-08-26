@@ -70,13 +70,13 @@ export default function DepartmentParameterDetailPage() {
       <div className="p-8 text-center space-y-4">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">Page Not Found</h2>
         <p className="text-xs text-slate-500">The requested parameter detail page could not be found.</p>
-        <button
-          onClick={() => router.back()}
+        <Link
+          href="/institutions"
           className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-semibold bg-blue-900 text-white"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Go Back</span>
-        </button>
+        </Link>
       </div>
     );
   }
@@ -86,7 +86,7 @@ export default function DepartmentParameterDetailPage() {
       ? '/institutions/campus/trichy'
       : institution.campus === 'Ramapuram'
       ? '/institutions/campus/ramapuram'
-      : '/overview';
+      : '/institutions/campus/west-mambalam';
 
   // Apply Filters to Faculty
   let filteredFaculty = facultyMetrics;
@@ -103,7 +103,9 @@ export default function DepartmentParameterDetailPage() {
     <div className="space-y-4 pb-12">
       {/* ── 1. UNIVERSAL BREADCRUMB ── */}
       <nav className="flex items-center gap-2 text-[11px] font-medium text-slate-500 overflow-x-auto whitespace-nowrap pb-1">
-        <Link href="/overview" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Institutions</Link>
+        <Link href="/overview" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">SRM Group</Link>
+        <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-700 shrink-0" />
+        <Link href="/institutions" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Institutions</Link>
         <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-700 shrink-0" />
         <Link href={campusHref} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{institution.campusDisplayName}</Link>
         <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-700 shrink-0" />

@@ -416,26 +416,7 @@ export const MOCK_ATTENTION_ITEMS: AttentionItem[] = [
     recommendedAction: 'Expand PhD supervisor guide approvals and launch full-time research fellowship stipends.',
     is_mock: true,
   },
-  {
-    id: 'att-10',
-    institutionId: 'eec',
-    institutionName: 'Easwari Engineering College',
-    institutionShortName: 'Easwari Engg',
-    campus: 'Ramapuram',
-    categoryId: 'cat-02',
-    categorySlug: 'patent',
-    categoryName: 'Patent',
-    categoryCode: 'PAT',
-    actual: 19,
-    target: 25,
-    gap: -6,
-    unit: 'Patents',
-    achievementPercentage: 76.0,
-    status: 'ORANGE',
-    trend: 2.5,
-    recommendedAction: 'Accelerate commercial patent monetization and technology transfer negotiations.',
-    is_mock: true,
-  },
+
 ];
 
 // Helper: Generate all 19 constituent institution performance records for a given category

@@ -9,6 +9,7 @@ import {
   Award,
   Search,
   X,
+  ChevronRight,
 } from 'lucide-react';
 import { TrendIndicator, InstitutionLogo, StatusBadge } from '@/components/primitives';
 import { getInstitutionById } from '@/data/mock/institutions.mock';
@@ -94,7 +95,7 @@ export default function InstitutionDetailPage() {
       ? '/institutions/campus/trichy'
       : institution.campus === 'Ramapuram'
       ? '/institutions/campus/ramapuram'
-      : '/overview';
+      : '/institutions/campus/west-mambalam';
 
   const clearUrlFilter = () => {
     setCategoryStatusFilter('ALL');
@@ -108,6 +109,19 @@ export default function InstitutionDetailPage() {
 
   return (
     <div className="space-y-4 pb-12">
+      {/* ── 0. UNIVERSAL BREADCRUMB ── */}
+      <nav className="flex items-center gap-2 text-[11px] font-medium text-slate-500 overflow-x-auto whitespace-nowrap pb-1">
+        <Link href="/overview" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">SRM Group</Link>
+        <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-700 shrink-0" />
+        <Link href="/institutions" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Institutions</Link>
+        <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-700 shrink-0" />
+        <Link href={campusHref} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{institution.campusDisplayName}</Link>
+        <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-700 shrink-0" />
+        <span className="text-slate-900 dark:text-white font-semibold">
+          {institution.code}
+        </span>
+      </nav>
+
       {/* ── 1. COMPACT INSTITUTION HEADER ── */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-lg p-4 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">

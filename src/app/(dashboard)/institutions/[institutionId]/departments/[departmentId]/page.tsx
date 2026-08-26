@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Search, X, MapPin, ArrowLeft, Award, ChevronRight } from 'lucide-react';
-import { PageHeader } from '@/components/primitives/page-header';
+
 import { TrendIndicator, InstitutionLogo, StatusBadge } from '@/components/primitives';
 import { getInstitutionById } from '@/data/mock/institutions.mock';
 import { scorecardRepository } from '@/lib/data-access/scorecard.repository';
@@ -94,7 +94,7 @@ export default function DepartmentScorecardPage() {
       ? '/institutions/campus/trichy'
       : institution.campus === 'Ramapuram'
       ? '/institutions/campus/ramapuram'
-      : '/overview';
+      : '/institutions/campus/west-mambalam';
 
   const clearUrlFilter = () => {
     setCategoryStatusFilter('ALL');
@@ -108,38 +108,22 @@ export default function DepartmentScorecardPage() {
 
   return (
     <div className="space-y-4 pb-12">
+      {/* ── 0. UNIVERSAL BREADCRUMB ── */}
+      <nav className="flex items-center gap-2 text-[11px] font-medium text-slate-500 overflow-x-auto whitespace-nowrap pb-1">
+        <Link href="/overview" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">SRM Group</Link>
+        <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-700 shrink-0" />
+        <Link href="/institutions" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Institutions</Link>
+        <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-700 shrink-0" />
+        <Link href={campusHref} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{institution.campusDisplayName}</Link>
+        <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-700 shrink-0" />
+        <Link href={`/institutions/${institution.id}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{institution.code}</Link>
+        <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-700 shrink-0" />
+        <span className="text-slate-900 dark:text-white font-semibold">{department.code}</span>
+      </nav>
+
       {/* ── 1. DEPARTMENT SCORECARD HEADER ── */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-lg shadow-xs">
-        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between">
-          <PageHeader
-            title={`${department.name} Performance Scorecard`}
-            subtitle="Department-level execution across 14 governance parameters"
-            actions={
-              <Link
-                href={`/institutions/${institution.id}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Back to College</span>
-              </Link>
-            }
-          />
-
-          <div className="flex items-center gap-2 mt-4 sm:mt-0 text-[10px] text-slate-500 font-mono">
-            <span>SRM Group</span>
-            <ChevronRight className="w-3 h-3 text-slate-300" />
-            <span>{institution.campusDisplayName}</span>
-            <ChevronRight className="w-3 h-3 text-slate-300" />
-            <Link href={`/institutions/${institution.id}/departments`} className="hover:text-blue-600 transition-colors">
-              {institution.code}
-            </Link>
-            <ChevronRight className="w-3 h-3 text-slate-300" />
-            <span className="font-semibold text-slate-900 dark:text-white">{department.code}</span>
-          </div>
-        </div>
-
-        {/* Institution Info Card */}
-        <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border-x border-b border-slate-200/60 dark:border-slate-800 rounded-b-xl shadow-xs">
+        <div className="p-5 border-b border-slate-100 dark:border-slate-800">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <InstitutionLogo institutionIdOrCode={institution.id} name={institution.name} />
@@ -152,27 +136,34 @@ export default function DepartmentScorecardPage() {
                     {institution.name}
                   </span>
                 </div>
-                <h2 className="text-lg font-extrabold text-slate-950 dark:text-white">
-                  {department.name}
-                </h2>
+                <h1 className="text-xl font-extrabold text-slate-950 dark:text-white tracking-tight leading-snug">
+                  {department.name} Performance Scorecard
+                </h1>
+                <p className="text-xs text-slate-500 mt-1">Department-level execution across 14 governance parameters</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-4 shrink-0">
               <div className="text-right">
-                <span className="text-2xl font-extrabold text-slate-950 dark:text-white block font-mono">
+                <span className="text-2xl font-extrabold text-slate-950 dark:text-white block font-mono leading-none">
                   {department.performanceScore.toFixed(1)}%
                 </span>
-                <span className="text-[10px] text-slate-500 font-medium">Overall Score</span>
+                <span className="text-[10px] text-slate-400 font-medium">Overall Score</span>
               </div>
-              <div className="h-10 w-px bg-slate-200 dark:bg-slate-800"></div>
-              <StatusBadge status={department.status} />
+              <StatusBadge status={department.status} size="lg" />
+              <Link
+                href={`/institutions/${institution.id}`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ml-2"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to College</span>
+              </Link>
             </div>
           </div>
         </div>
 
         {/* Status Tally + High-level Stats */}
-        <div className="p-4 pt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div className="p-4 flex flex-wrap items-center justify-between gap-2 text-xs bg-slate-50/50 dark:bg-slate-900/50 rounded-b-lg">
           <div className="flex items-center gap-3 font-mono">
             <button
               type="button"
