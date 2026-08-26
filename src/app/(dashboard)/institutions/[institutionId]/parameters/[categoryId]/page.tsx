@@ -3,12 +3,16 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Flag } from 'lucide-react';
 import { getInstitutionById } from '@/data/mock/institutions.mock';
 import { scorecardRepository } from '@/lib/data-access/scorecard.repository';
 import { StatusBadge } from '@/components/primitives';
 import { PerformanceStatus } from '@/lib/types/common';
 import { FacultyPerformanceList } from '@/components/institutions/faculty-performance-list';
+import { useFlagStore } from '@/lib/store/use-flag-store';
+import { FlagModal } from '@/components/institutions/flag-modal';
+import { PriorityLevel } from '@/lib/types/flag';
+import { DepartmentCategoryMetric } from '@/lib/types/performance';
 import { cn } from '@/lib/utils';
 
 export default function ParameterDetailPage() {
@@ -27,6 +31,33 @@ export default function ParameterDetailPage() {
   
   // Track which department is expanded to see faculty
   const [expandedDeptId, setExpandedDeptId] = useState<string | null>(null);
+
+  // Flag system state
+  const { flags, addFlag } = useFlagStore();
+  const [flaggingDept, setFlaggingDept] = useState<DepartmentCategoryMetric | null>(null);
+
+  const handleFlagSubmit = (data: { reason: string; priority: PriorityLevel }) => {
+    if (!flaggingDept || !institution || !category) return;
+    addFlag({
+      institutionId: institution.id,
+      institutionName: institution.name,
+      departmentId: flaggingDept.departmentId,
+      departmentName: flaggingDept.departmentName,
+      departmentCode: flaggingDept.departmentCode,
+      parameterId: category.id,
+      parameterName: category.name,
+      parameterCode: category.code,
+      actualValue: flaggingDept.actual,
+      targetValue: flaggingDept.target,
+      unit: flaggingDept.unit,
+      priority: data.priority,
+      reason: data.reason,
+      status: 'FLAGGED',
+      assignedTo: 'Designated HOD (Mock)',
+      createdBy: "Chairman's Office (Mock)",
+    });
+    setFlaggingDept(null);
+  };
 
   const { departments } = useMemo(() => {
     if (!institution || !category) return { departments: [] };
@@ -201,32 +232,50 @@ export default function ParameterDetailPage() {
             else if (dept.status === 'ORANGE') borderClass = 'border-l-[3px] border-l-amber-500';
             else if (dept.status === 'RED') borderClass = 'border-l-[3px] border-l-rose-500';
 
+            const isFlagged = flags.some((f) => f.departmentId === dept.departmentId && f.parameterId === category.id && f.status === 'FLAGGED');
+
             return (
-              <div key={dept.departmentId} className={cn("flex flex-col bg-white dark:bg-transparent", borderClass)}>
+              <div key={dept.departmentId} className={cn("flex flex-col bg-white dark:bg-transparent border-t first:border-t-0 border-slate-100 dark:border-slate-800", borderClass)}>
                 <div 
                   className={cn(
-                    "flex flex-col sm:flex-row sm:items-center justify-between p-4 cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50",
+                    "flex items-center justify-between px-4 py-2.5 cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 group",
                     isExpanded ? "bg-blue-50/50 dark:bg-blue-900/10" : ""
                   )}
                   onClick={() => setExpandedDeptId(isExpanded ? null : dept.departmentId)}
                 >
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400">
-                          {dept.departmentCode}
-                        </span>
-                        <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                          {dept.departmentName}
-                        </h3>
-                      </div>
-                      <div className="flex items-center gap-3 mt-0.5 text-[11px] text-slate-500">
-                        <span>Faculty: {dept.facultyCount}</span>
-                      </div>
-                    </div>
+                  <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                    <span className="text-[11px] font-mono font-bold text-slate-400 dark:text-slate-500 w-10 sm:w-12 shrink-0">
+                      {dept.departmentCode}
+                    </span>
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                      {dept.departmentName}
+                    </h3>
+                    <span className="text-[11px] text-slate-500 hidden sm:inline-block shrink-0">
+                      {dept.facultyCount} Faculty
+                    </span>
                   </div>
-                  <div className="flex items-center gap-3 mt-3 sm:mt-0 text-xs font-semibold text-blue-600 dark:text-blue-400">
-                    {isExpanded ? 'Hide Faculty' : 'View Faculty Drill-down'}
+
+                  <div className="flex items-center gap-3 sm:gap-4 shrink-0 pl-2 sm:pl-4">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!isFlagged) setFlaggingDept(dept);
+                      }}
+                      disabled={isFlagged}
+                      className={cn(
+                        "flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all focus:outline-none",
+                        isFlagged
+                          ? "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400 cursor-not-allowed"
+                          : "text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                      )}
+                    >
+                      <Flag className={cn("w-3.5 h-3.5", isFlagged ? "fill-rose-200 dark:fill-rose-900/40" : "")} />
+                      <span className="hidden sm:inline-block">{isFlagged ? 'Flagged' : 'Flag'}</span>
+                    </button>
+                    
+                    <div className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 w-auto sm:w-20 text-right">
+                      {isExpanded ? 'Hide' : 'Drill-down'}
+                    </div>
                   </div>
                 </div>
 
@@ -253,6 +302,20 @@ export default function ParameterDetailPage() {
           )}
         </div>
       </div>
+
+      <FlagModal
+        isOpen={!!flaggingDept}
+        onClose={() => setFlaggingDept(null)}
+        onSubmit={handleFlagSubmit}
+        institutionName={institution?.name || ''}
+        departmentName={flaggingDept?.departmentName || ''}
+        parameterName={category?.name || ''}
+        parameterCode={category?.code || ''}
+        currentStatus={flaggingDept?.status || 'GREEN'}
+        targetValue={category?.target || 0}
+        actualValue={flaggingDept?.actual || 0}
+        unit={category?.unit || ''}
+      />
     </div>
   );
 }

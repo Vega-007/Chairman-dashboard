@@ -6,9 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
-  AlertTriangle,
   Building2,
-  BarChart3,
   Users,
   FileText,
   Settings,
@@ -17,7 +15,6 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useAppStore } from '@/lib/store/use-app-store';
-import { getAttentionItemsTotalCount } from '@/data/mock/performance.mock';
 import { MOCK_INSTITUTIONS } from '@/data/mock/institutions.mock';
 import { InstitutionLogo } from '@/components/primitives/institution-logo';
 import { cn } from '@/lib/utils';
@@ -31,7 +28,6 @@ export interface NavItem {
 }
 
 export function getMainNavItems(): NavItem[] {
-  const attentionCount = getAttentionItemsTotalCount();
   const institutionsCount = MOCK_INSTITUTIONS.length;
 
   return [
@@ -41,13 +37,6 @@ export function getMainNavItems(): NavItem[] {
       icon: LayoutDashboard,
     },
     {
-      label: 'Attention Required',
-      href: '/attention',
-      icon: AlertTriangle,
-      badge: attentionCount,
-      badgeVariant: 'red',
-    },
-    {
       label: 'Institutions',
       href: '/institutions',
       icon: Building2,
@@ -55,12 +44,7 @@ export function getMainNavItems(): NavItem[] {
       badgeVariant: 'neutral',
     },
     {
-      label: 'Performance',
-      href: '/performance',
-      icon: BarChart3,
-    },
-    {
-      label: 'Faculty',
+      label: 'Faculty Performance',
       href: '/faculty',
       icon: Users,
     },
