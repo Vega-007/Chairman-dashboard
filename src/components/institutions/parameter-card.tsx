@@ -17,28 +17,51 @@ interface ParameterCardProps {
   onOpenDetails: (category: InstitutionCategoryDetail) => void;
 }
 
-// Premium status styles: colored left border + soft ambient background tint
 const STATUS_STYLES = {
   GREEN: {
-    card: 'border-l-[3px] border-l-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/10 border-emerald-200/80 dark:border-emerald-900 hover:border-emerald-300 dark:hover:border-emerald-800 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20',
-    dot: 'bg-emerald-600 dark:bg-emerald-400',
+    card: [
+      'border-l-[3px] border-l-emerald-500',
+      'bg-emerald-50/30 hover:bg-emerald-50/50',
+      'dark:bg-emerald-950/15 dark:hover:bg-emerald-950/25',
+      'border-emerald-200 dark:border-emerald-900',
+      'hover:border-emerald-300 dark:hover:border-emerald-800',
+      'hover:shadow-[0_2px_12px_rgba(16,185,129,0.18)] dark:hover:shadow-[0_2px_12px_rgba(16,185,129,0.12)]',
+      'shadow-[0_1px_6px_rgba(16,185,129,0.10)] dark:shadow-[0_1px_6px_rgba(16,185,129,0.08)]',
+    ].join(' '),
+    dot: 'bg-emerald-600 dark:bg-emerald-500',
     bar: 'bg-emerald-600 dark:bg-emerald-500',
     text: 'text-emerald-700 dark:text-emerald-400',
-    selected: 'border-l-[3px] border-l-emerald-500 ring-2 ring-emerald-500/25 bg-emerald-50/40 dark:bg-emerald-950/25 shadow-sm border-emerald-300 dark:border-emerald-800',
+    selected: 'border-l-[3px] border-l-emerald-500 ring-2 ring-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/30 shadow-[0_4px_16px_rgba(16,185,129,0.25)] dark:shadow-[0_4px_16px_rgba(16,185,129,0.15)] border-emerald-300 dark:border-emerald-800',
   },
   ORANGE: {
-    card: 'border-l-[3px] border-l-amber-500 bg-amber-50/20 dark:bg-amber-950/10 border-amber-200/80 dark:border-amber-900 hover:border-amber-300 dark:hover:border-amber-800 hover:bg-amber-50/40 dark:hover:bg-amber-950/20',
+    card: [
+      'border-l-[3px] border-l-amber-500',
+      'bg-amber-50/30 hover:bg-amber-50/50',
+      'dark:bg-amber-950/15 dark:hover:bg-amber-950/25',
+      'border-amber-200 dark:border-amber-900',
+      'hover:border-amber-300 dark:hover:border-amber-800',
+      'hover:shadow-[0_2px_12px_rgba(245,158,11,0.18)] dark:hover:shadow-[0_2px_12px_rgba(245,158,11,0.12)]',
+      'shadow-[0_1px_6px_rgba(245,158,11,0.10)] dark:shadow-[0_1px_6px_rgba(245,158,11,0.08)]',
+    ].join(' '),
     dot: 'bg-amber-500 dark:bg-amber-400',
     bar: 'bg-amber-500 dark:bg-amber-400',
     text: 'text-amber-700 dark:text-amber-400',
-    selected: 'border-l-[3px] border-l-amber-500 ring-2 ring-amber-500/25 bg-amber-50/40 dark:bg-amber-950/25 shadow-sm border-amber-300 dark:border-amber-800',
+    selected: 'border-l-[3px] border-l-amber-500 ring-2 ring-amber-500/30 bg-amber-50/50 dark:bg-amber-950/30 shadow-[0_4px_16px_rgba(245,158,11,0.25)] dark:shadow-[0_4px_16px_rgba(245,158,11,0.15)] border-amber-300 dark:border-amber-800',
   },
   RED: {
-    card: 'border-l-[3px] border-l-rose-600 bg-rose-50/20 dark:bg-rose-950/10 border-rose-200/80 dark:border-rose-900 hover:border-rose-300 dark:hover:border-rose-800 hover:bg-rose-50/40 dark:hover:bg-rose-950/20',
-    dot: 'bg-rose-600 dark:bg-rose-400',
+    card: [
+      'border-l-[3px] border-l-rose-600',
+      'bg-rose-50/30 hover:bg-rose-50/50',
+      'dark:bg-rose-950/15 dark:hover:bg-rose-950/25',
+      'border-rose-200 dark:border-rose-900',
+      'hover:border-rose-300 dark:hover:border-rose-800',
+      'hover:shadow-[0_2px_12px_rgba(239,68,68,0.22)] dark:hover:shadow-[0_2px_12px_rgba(239,68,68,0.14)]',
+      'shadow-[0_1px_6px_rgba(239,68,68,0.13)] dark:shadow-[0_1px_6px_rgba(239,68,68,0.10)]',
+    ].join(' '),
+    dot: 'bg-rose-600 dark:bg-rose-500',
     bar: 'bg-rose-600 dark:bg-rose-500',
     text: 'text-rose-700 dark:text-rose-400',
-    selected: 'border-l-[3px] border-l-rose-600 ring-2 ring-rose-500/25 bg-rose-50/40 dark:bg-rose-950/25 shadow-sm border-rose-300 dark:border-rose-800',
+    selected: 'border-l-[3px] border-l-rose-600 ring-2 ring-rose-500/30 bg-rose-50/50 dark:bg-rose-950/30 shadow-[0_4px_16px_rgba(239,68,68,0.3)] dark:shadow-[0_4px_16px_rgba(239,68,68,0.2)] border-rose-300 dark:border-rose-800',
   },
 } as const;
 
@@ -80,17 +103,16 @@ export const ParameterCard: React.FC<ParameterCardProps> = ({
       {/* Top row: Status indicator + Name/Code + Percentage */}
       <div>
         <div className="flex items-start justify-between gap-1.5 mb-1">
-          <div className="flex items-center gap-1.5 min-w-0">
+          <div className="flex flex-col gap-1 min-w-0">
             <span
-              className={cn('w-2 h-2 rounded-full shrink-0', colors.dot)}
-              aria-label={
-                category.status === 'GREEN'
-                  ? 'Achieved'
-                  : category.status === 'ORANGE'
-                  ? 'Needs Improvement'
-                  : 'Action Required'
-              }
-            />
+              className={cn('inline-flex self-start px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider shadow-xs border', 
+                category.status === 'GREEN' ? 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300 dark:border-emerald-800' :
+                category.status === 'ORANGE' ? 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-800' :
+                'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-900/50 dark:text-rose-300 dark:border-rose-800'
+              )}
+            >
+              {category.status === 'GREEN' ? 'Achieved' : category.status === 'ORANGE' ? 'Needs Impr.' : 'Action Req.'}
+            </span>
             <h3 className="text-[11px] font-bold text-slate-900 dark:text-white leading-tight group-hover:text-blue-900 dark:group-hover:text-blue-400 transition-colors truncate">
               {category.name}
             </h3>

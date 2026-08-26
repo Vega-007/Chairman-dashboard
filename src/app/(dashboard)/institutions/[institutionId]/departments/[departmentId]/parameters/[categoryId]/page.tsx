@@ -137,7 +137,7 @@ export default function DepartmentParameterDetailPage() {
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Scorecard</span>
+            <span>Back to Department</span>
           </Link>
           <button
             onClick={() => !isFlagged && setIsFlagging(true)}

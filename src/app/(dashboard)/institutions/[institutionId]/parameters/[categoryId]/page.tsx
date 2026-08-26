@@ -251,6 +251,12 @@ export default function ParameterDetailPage() {
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0 pl-2">
+                      <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 px-1">
+                        {(() => {
+                          const deptData = scorecardRepository.getDepartmentScorecard(institution.id, dept.departmentId).find(c => c.id === category.id);
+                          return deptData ? `${deptData.achievementPercentage}%` : 'N/A';
+                        })()}
+                      </span>
                       <span className="text-[10px] font-medium text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-1.5 py-0.5 rounded">
                         {dept.facultyCount} Fac
                       </span>

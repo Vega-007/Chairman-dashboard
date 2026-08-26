@@ -114,6 +114,15 @@ export default function DepartmentScorecardPage() {
           <PageHeader
             title={`${department.name} Performance Scorecard`}
             subtitle="Department-level execution across 14 governance parameters"
+            actions={
+              <Link
+                href={`/institutions/${institution.id}`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to College</span>
+              </Link>
+            }
           />
 
           <div className="flex items-center gap-2 mt-4 sm:mt-0 text-[10px] text-slate-500 font-mono">
