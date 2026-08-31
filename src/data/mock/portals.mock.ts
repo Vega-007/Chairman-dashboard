@@ -78,7 +78,7 @@ export const ACADEMIC_PORTALS: DashboardPortal[] = [
     description: 'Research & Development Analytics',
     category: 'ACADEMIC',
     status: 'LIVE',
-    url: 'https://rd-dashboard-navy.vercel.app/index.html',
+    url: 'https://rd-dashboard-navy.vercel.app/?role=CHAIRMAN',
     icon: FlaskConical,
     accent: 'indigo',
   },
