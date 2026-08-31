@@ -68,7 +68,7 @@ export const ACADEMIC_PORTALS: DashboardPortal[] = [
     description: 'Reports, Reviews & Performance Monitoring',
     category: 'ACADEMIC',
     status: 'LIVE',
-    url: 'https://srm-report-project.vercel.app/dashboard',
+    url: 'https://srm-report-project.vercel.app/',
     icon: ClipboardCheck,
     accent: 'amber',
   },
