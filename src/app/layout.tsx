@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SRM Chairman's MIS | Management Information System",
-  description: 'Executive Management Information System for SRM Institutions — Ramapuram & Trichy Campuses',
+  title: "Chairman Executive Dashboard | SRM Group",
+  description: 'Centralized institutional and business intelligence gateway for the Chairman.',
 };
 
 export default function RootLayout({
