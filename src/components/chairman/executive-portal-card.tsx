@@ -191,9 +191,7 @@ export const ExecutivePortalCard: React.FC<ExecutivePortalCardProps> = ({ portal
       <div
         className="relative overflow-hidden shrink-0"
         style={{
-          background: isLive
-            ? `linear-gradient(135deg, ${accent.headerBg} 0%, ${accent.headerBgDark} 100%)`
-            : `linear-gradient(135deg, ${accent.headerMuted} 0%, ${accent.headerMutedDark} 100%)`,
+          background: `linear-gradient(135deg, ${accent.headerBg} 0%, ${accent.headerBgDark} 100%)`,
           padding: compact ? '14px 14px 12px' : '18px 18px 16px',
         }}
       >
@@ -263,7 +261,7 @@ export const ExecutivePortalCard: React.FC<ExecutivePortalCardProps> = ({ portal
             className="font-bold leading-tight"
             style={{
               fontSize: compact ? '12px' : '15px',
-              color: isLive ? '#fff' : 'rgba(255,255,255,0.75)',
+              color: '#fff',
               letterSpacing: '-0.01em',
             }}
           >
@@ -275,7 +273,7 @@ export const ExecutivePortalCard: React.FC<ExecutivePortalCardProps> = ({ portal
       {/* ====== WHITE CONTENT AREA ====== */}
       <div className="flex flex-col flex-1 bg-white px-4 py-3.5">
         {/* Description */}
-        <p className="text-[12px] text-slate-500 leading-relaxed flex-1 line-clamp-2">
+        <p className="text-[12.5px] font-semibold text-slate-700 leading-relaxed flex-1 line-clamp-2">
           {portal.description}
         </p>
 
@@ -297,15 +295,15 @@ export const ExecutivePortalCard: React.FC<ExecutivePortalCardProps> = ({ portal
               </span>
               <ArrowUpRight
                 className="w-3.5 h-3.5"
-                style={{ color: accent.ctaBg, opacity: 0.7 }}
+                style={{ color: accent.ctaBg, opacity: 0.9 }}
               />
             </div>
           ) : (
             <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-50 border border-slate-200">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                 Coming Soon
               </span>
-              <Clock className="w-3 h-3 text-slate-300" />
+              <Clock className="w-3 h-3 text-slate-400" />
             </div>
           )}
         </div>
@@ -316,13 +314,13 @@ export const ExecutivePortalCard: React.FC<ExecutivePortalCardProps> = ({ portal
   const wrapperClass = cn(
     'group flex flex-col h-full rounded-xl overflow-hidden border transition-all duration-200',
     isLive
-      ? 'cursor-pointer hover:-translate-y-1 hover:shadow-xl'
+      ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg'
       : 'cursor-default',
   );
 
   const wrapperStyle = {
     borderColor: isLive ? accent.borderColor : '#e2e8f0',
-    boxShadow: isLive ? `0 2px 12px ${accent.glow}` : '0 1px 4px rgba(0,0,0,0.06)',
+    boxShadow: isLive ? '0 4px 14px rgba(0,0,0,0.06)' : '0 1px 4px rgba(0,0,0,0.04)',
   };
 
   if (isLive && portal.url) {

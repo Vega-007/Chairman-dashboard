@@ -62,10 +62,10 @@ export const ExecutiveCategorySection: React.FC<ExecutiveCategorySectionProps> =
 
             {/* Title + Subtitle */}
             <div>
-              <h2 className="text-[16px] font-bold text-white tracking-tight leading-none mb-1">
+              <h2 className="text-[18px] font-bold text-white tracking-tight leading-none mb-1.5">
                 {title}
               </h2>
-              <p className="text-[12px] leading-snug" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              <p className="text-[14px] leading-snug text-blue-100">
                 {subtitle}
               </p>
             </div>

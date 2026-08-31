@@ -19,15 +19,15 @@ export const ChairmanCommandCenter: React.FC = () => {
         />
 
         {/* Left: Icon + Description */}
-        <div className="flex items-center gap-4 relative z-10 flex-1 min-w-0">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.25)' }}>
-            <Monitor className="w-5 h-5 text-blue-400" />
+        <div className="flex items-center gap-5 relative z-10 flex-1 min-w-0">
+          <div className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.25)' }}>
+            <Monitor className="w-6 h-6 text-blue-400" />
           </div>
           <div className="min-w-0">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-400/70 mb-1">
-              Executive Analytics &amp; Governance Hub
+            <div className="text-sm font-bold uppercase tracking-widest text-blue-300 mb-1.5">
+              Institutional Analytic Dashboard
             </div>
-            <p className="text-[13px] text-slate-400 leading-snug">
+            <p className="text-base text-slate-200 leading-snug">
               Unified access to institutional, academic and operational intelligence.
             </p>
           </div>

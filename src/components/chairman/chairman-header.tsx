@@ -46,53 +46,21 @@ export const ChairmanHeader: React.FC = () => {
       <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 relative z-10">
         <div className="flex items-center h-[78px] gap-0">
 
-          {/* SRM Logo Box */}
+          {/* SRM Logo */}
           <div className="flex items-center shrink-0 mr-6">
-            <div className="flex items-center justify-center bg-white rounded-lg px-3 py-1.5" style={{ minWidth: 130 }}>
-              <Image
-                src="/Final-Logo.png"
-                alt="SRM Group of Institutions"
-                width={150}
-                height={40}
-                style={{ width: 'auto', height: '34px', objectFit: 'contain' }}
-                priority
-              />
-            </div>
+            <Image
+              src="/Final-Logo.png"
+              alt="SRM Group of Institutions"
+              width={160}
+              height={44}
+              style={{ width: 'auto', height: '40px', objectFit: 'contain' }}
+              className="bg-white/95 px-2 py-1 rounded-md"
+              priority
+            />
           </div>
 
-          {/* Divider */}
-          <div className="h-10 w-px bg-white/10 mr-6 shrink-0" />
-
-          {/* Title + Subtitle */}
-          <div className="flex flex-col justify-center flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
-              <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-blue-400/80 truncate">
-                Executive Governance Platform
-              </span>
-            </div>
-            <h1 className="text-[18px] font-bold tracking-tight text-white leading-none">
-              Chairman{' '}
-              <span className="text-slate-400 font-normal">—</span>{' '}
-              <span className="text-slate-200 font-semibold">Institutional Command Center</span>
-            </h1>
-          </div>
-
-          {/* Right: Stats Badges */}
-          <div className="hidden lg:flex items-center gap-3 ml-6 shrink-0">
-            <StatBadge icon={<LayoutGrid className="w-3.5 h-3.5" />} value="13" label="Portals" color="blue" />
-            <StatBadge icon={<GraduationCap className="w-3.5 h-3.5" />} value="6" label="Academic" color="indigo" />
-            <StatBadge icon={<Building2 className="w-3.5 h-3.5" />} value="7" label="Business" color="amber" />
-          </div>
-
-          {/* Right: Chairman Badge */}
-          <div className="hidden md:flex items-center gap-2.5 ml-4 bg-amber-500/10 border border-amber-500/20 rounded-lg px-4 py-2 shrink-0">
-            <Crown className="w-4 h-4 text-amber-400 shrink-0" />
-            <div className="flex flex-col">
-              <span className="text-[12px] font-bold text-amber-300 leading-none">Chairman</span>
-              <span className="text-[10px] text-amber-500/70 leading-none mt-0.5">SRM Group</span>
-            </div>
-          </div>
+          {/* Spacer to push anything else to the right, though it's empty now */}
+          <div className="flex-1" />
 
         </div>
 

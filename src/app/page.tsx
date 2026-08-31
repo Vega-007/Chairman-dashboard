@@ -60,7 +60,7 @@ export default function RootPage() {
 
           {/* Business Unit Systems — compact 4-col grid */}
           <ExecutiveCategorySection
-            title="Business Unit Systems"
+            title="Business Unit Dashboard"
             subtitle="Operational intelligence across SRM business verticals. Integrations launching soon."
             portals={BUSINESS_UNIT_PORTALS}
             icon={Building2}

@@ -1,28 +1,28 @@
-import { 
-  BarChart2, 
-  ClipboardCheck, 
-  FlaskConical, 
-  ShieldCheck, 
-  Briefcase, 
-  TrendingUp, 
-  ChefHat, 
-  BookOpen, 
-  Building2, 
-  Microscope, 
-  Store, 
-  Home, 
+import {
+  BarChart2,
+  ClipboardCheck,
+  FlaskConical,
+  ShieldCheck,
+  Briefcase,
+  TrendingUp,
+  ChefHat,
+  BookOpen,
+  Building2,
+  Microscope,
+  Store,
+  Home,
   Bus,
-  type LucideIcon 
+  type LucideIcon
 } from 'lucide-react';
 
 export type PortalCategory = 'ACADEMIC' | 'BUSINESS_UNIT';
 export type PortalStatus = 'LIVE' | 'COMING_SOON';
-export type PortalAccent = 
-  | 'royal-blue' 
-  | 'violet' 
-  | 'amber' 
-  | 'indigo' 
-  | 'emerald' 
+export type PortalAccent =
+  | 'royal-blue'
+  | 'violet'
+  | 'amber'
+  | 'indigo'
+  | 'emerald'
   | 'teal'
   | 'orange'
   | 'rose'
@@ -58,7 +58,7 @@ export const ACADEMIC_PORTALS: DashboardPortal[] = [
     description: 'Faculty Performance & Goals Met',
     category: 'ACADEMIC',
     status: 'LIVE',
-    url: 'https://faculty-appraisal-form-five.vercel.app/',
+    url: 'https://faculty-appraisal-form-five.vercel.app/?role=CHAIRMAN',
     icon: TrendingUp,
     accent: 'violet',
   },
