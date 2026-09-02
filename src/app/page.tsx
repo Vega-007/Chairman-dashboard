@@ -65,7 +65,7 @@ export default function RootPage() {
             portals={BUSINESS_UNIT_PORTALS}
             icon={Building2}
             onToast={showToast}
-            gridClass="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7"
+            gridClass="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8"
             sectionTheme="business"
           />
 

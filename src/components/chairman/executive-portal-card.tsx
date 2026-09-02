@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { ArrowUpRight, Clock } from 'lucide-react';
 import { DashboardPortal, PortalAccent } from '@/data/mock/portals.mock';
 import { cn } from '@/lib/utils';
@@ -323,7 +324,23 @@ export const ExecutivePortalCard: React.FC<ExecutivePortalCardProps> = ({ portal
     boxShadow: isLive ? '0 4px 14px rgba(0,0,0,0.06)' : '0 1px 4px rgba(0,0,0,0.04)',
   };
 
+  const isInternal = portal.url?.startsWith('/');
+
   if (isLive && portal.url) {
+    if (isInternal) {
+      return (
+        <Link
+          href={portal.url}
+          className={wrapperClass}
+          style={wrapperStyle}
+          onClick={handleClick}
+          aria-label={`Open ${portal.name}`}
+        >
+          {CardInner}
+        </Link>
+      );
+    }
+    
     return (
       <a
         href={portal.url}
