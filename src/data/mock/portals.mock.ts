@@ -110,7 +110,7 @@ export const ACADEMIC_PORTALS: DashboardPortal[] = [
     description: 'SRM Alumni Connect and Network Platform',
     category: 'ACADEMIC',
     status: 'LIVE',
-    url: 'https://vishal-srm-connect-vishal-branch.vercel.app/#home',
+    url: 'https://vishal-srm-connect-vishal-branch.vercel.app/?role=CHAIRMAN',
     icon: Users,
     accent: 'cyan',
   }
