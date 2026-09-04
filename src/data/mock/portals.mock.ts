@@ -13,6 +13,7 @@ import {
   Home,
   Bus,
   Wifi,
+  Users,
   type LucideIcon
 } from 'lucide-react';
 
@@ -102,6 +103,16 @@ export const ACADEMIC_PORTALS: DashboardPortal[] = [
     url: 'https://placement-portal-sigma-seven.vercel.app/?role=CHAIRMAN',
     icon: Briefcase,
     accent: 'teal',
+  },
+  {
+    id: 'alumni-network',
+    name: 'Alumni Network',
+    description: 'SRM Alumni Connect and Network Platform',
+    category: 'ACADEMIC',
+    status: 'LIVE',
+    url: 'https://vishal-srm-connect-vishal-branch.vercel.app/#home',
+    icon: Users,
+    accent: 'cyan',
   }
 ];
 
