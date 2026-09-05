@@ -5,7 +5,6 @@ import { Building2, GraduationCap, Wifi } from 'lucide-react';
 import { ACADEMIC_PORTALS, BUSINESS_UNIT_PORTALS } from '@/data/mock/portals.mock';
 import { ExecutiveCategorySection } from '@/components/chairman/executive-category-section';
 import { ChairmanHeader } from '@/components/chairman/chairman-header';
-import { ChairmanCommandCenter } from '@/components/chairman/chairman-command-center';
 import { cn } from '@/lib/utils';
 
 export default function RootPage() {
@@ -42,8 +41,6 @@ export default function RootPage() {
       <ChairmanHeader />
 
       <main className="flex-1 w-full max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-10 py-7">
-
-        <ChairmanCommandCenter />
 
         <div className="space-y-8">
 

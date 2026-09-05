@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { LayoutGrid, GraduationCap, Building2, Crown } from 'lucide-react';
+import { LayoutGrid, GraduationCap, Building2, Crown, Shield } from 'lucide-react';
 
 export const ChairmanHeader: React.FC = () => {
   const [currentTime, setCurrentTime] = useState('');
@@ -47,7 +47,7 @@ export const ChairmanHeader: React.FC = () => {
         <div className="flex items-center h-[78px] gap-0">
 
           {/* SRM Logo */}
-          <div className="flex items-center shrink-0 mr-6">
+          <div className="flex items-center shrink-0 mr-3">
             <Image
               src="/Final-Logo.png"
               alt="SRM Group of Institutions"
@@ -59,8 +59,57 @@ export const ChairmanHeader: React.FC = () => {
             />
           </div>
 
-          {/* Spacer to push anything else to the right, though it's empty now */}
-          <div className="flex-1" />
+          {/* Content Area */}
+          <div className="flex-1 flex items-center justify-between ml-2">
+            {/* Title & Description */}
+            <div className="hidden md:block">
+              <div className="text-[13px] font-bold text-blue-300 uppercase tracking-wider mb-0.5">
+                Institutional Analytic Dashboard
+              </div>
+              <p className="text-[11px] text-slate-300 leading-snug">
+                Unified access to institutional, academic and operational intelligence.
+              </p>
+            </div>
+
+            {/* Stats Area */}
+            <div className="flex items-center">
+              
+              {/* Unified Stats Container */}
+              <div className="hidden lg:flex items-stretch bg-white/[0.03] border border-white/[0.08] rounded-lg overflow-hidden backdrop-blur-md shadow-sm">
+                
+                {/* Stat 1 */}
+                <div className="flex items-center gap-2.5 px-4 py-2 bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
+                  <span className="text-[22px] font-bold text-blue-400 tracking-tight leading-none mt-0.5">13</span>
+                  <div className="flex flex-col justify-center gap-[3px]">
+                    <span className="text-[10px] font-semibold text-slate-200 leading-none">Integrated Portals</span>
+                    <span className="text-[8.5px] font-bold text-blue-400/80 uppercase tracking-widest leading-none">Total</span>
+                  </div>
+                </div>
+
+                <div className="w-[1px] bg-white/[0.08]" />
+
+                {/* Stat 2 */}
+                <div className="flex items-center gap-2.5 px-4 py-2 bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
+                  <span className="text-[22px] font-bold text-indigo-400 tracking-tight leading-none mt-0.5">6</span>
+                  <div className="flex flex-col justify-center gap-[3px]">
+                    <span className="text-[10px] font-semibold text-slate-200 leading-none">Academic Systems</span>
+                    <span className="text-[8.5px] font-bold text-indigo-400/80 uppercase tracking-widest leading-none">Live</span>
+                  </div>
+                </div>
+
+                <div className="w-[1px] bg-white/[0.08]" />
+
+                {/* Stat 3 */}
+                <div className="flex items-center gap-2.5 px-4 py-2 bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
+                  <span className="text-[22px] font-bold text-amber-400 tracking-tight leading-none mt-0.5">7</span>
+                  <div className="flex flex-col justify-center gap-[3px]">
+                    <span className="text-[10px] font-semibold text-slate-200 leading-none">Business Units</span>
+                    <span className="text-[8.5px] font-bold text-amber-400/80 uppercase tracking-widest leading-none">Pipeline</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
         </div>
 
