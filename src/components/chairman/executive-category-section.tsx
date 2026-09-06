@@ -104,7 +104,7 @@ export const ExecutiveCategorySection: React.FC<ExecutiveCategorySectionProps> =
             key={portal.id}
             portal={portal}
             onToast={onToast}
-            compact={!isAcademic}
+            compact={true}
           />
         ))}
       </div>

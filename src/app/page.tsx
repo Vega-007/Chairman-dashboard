@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { Building2, GraduationCap, Wifi } from 'lucide-react';
-import { ACADEMIC_PORTALS, BUSINESS_UNIT_PORTALS } from '@/data/mock/portals.mock';
+import { Users } from 'lucide-react';
+import { ACADEMIC_PORTALS, BUSINESS_UNIT_PORTALS, COMMUNITY_PORTALS } from '@/data/mock/portals.mock';
 import { ExecutiveCategorySection } from '@/components/chairman/executive-category-section';
 import { ChairmanHeader } from '@/components/chairman/chairman-header';
 import { cn } from '@/lib/utils';
@@ -44,14 +45,14 @@ export default function RootPage() {
 
         <div className="space-y-8">
 
-          {/* Academic & Institutional Systems — 3 cols on desktop */}
+          {/* Academic & Institutional Systems */}
           <ExecutiveCategorySection
             title="Academic & Institutional Systems"
             subtitle="Live institutional analytics, governance, research and academic intelligence platforms."
             portals={ACADEMIC_PORTALS}
             icon={GraduationCap}
             onToast={showToast}
-            gridClass="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+            gridClass="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
             sectionTheme="academic"
           />
 
@@ -64,6 +65,17 @@ export default function RootPage() {
             onToast={showToast}
             gridClass="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8"
             sectionTheme="business"
+          />
+
+          {/* Community & Network Systems */}
+          <ExecutiveCategorySection
+            title="Community & Network"
+            subtitle="Global alumni networks and community engagement platforms."
+            portals={COMMUNITY_PORTALS}
+            icon={Users}
+            onToast={showToast}
+            gridClass="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+            sectionTheme="academic"
           />
 
         </div>

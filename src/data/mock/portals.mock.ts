@@ -103,16 +103,6 @@ export const ACADEMIC_PORTALS: DashboardPortal[] = [
     url: 'https://placement-portal-sigma-seven.vercel.app/?role=CHAIRMAN',
     icon: Briefcase,
     accent: 'teal',
-  },
-  {
-    id: 'alumni-network',
-    name: 'Alumni Network',
-    description: 'SRM Alumni Connect and Network Platform',
-    category: 'ACADEMIC',
-    status: 'LIVE',
-    url: 'https://vishal-srm-connect-vishal-branch.vercel.app/?role=CHAIRMAN',
-    icon: Users,
-    accent: 'cyan',
   }
 ];
 
@@ -196,5 +186,18 @@ export const BUSINESS_UNIT_PORTALS: DashboardPortal[] = [
     url: '/business-units/transport',
     icon: Bus,
     accent: 'gold',
+  }
+];
+
+export const COMMUNITY_PORTALS: DashboardPortal[] = [
+  {
+    id: 'alumni-network',
+    name: 'Alumni Network',
+    description: 'SRM Alumni Connect and Network Platform',
+    category: 'ACADEMIC',
+    status: 'LIVE',
+    url: 'https://vishal-srm-connect-vishal-branch.vercel.app/?role=CHAIRMAN',
+    icon: Users,
+    accent: 'cyan',
   }
 ];
