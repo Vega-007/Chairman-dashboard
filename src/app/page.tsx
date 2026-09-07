@@ -45,9 +45,9 @@ export default function RootPage() {
 
         <div className="space-y-8">
 
-          {/* Academic & Institutional Systems */}
+          {/* Academic & Institutional Dashboards */}
           <ExecutiveCategorySection
-            title="Academic & Institutional Systems"
+            title="Academic & Institutional Dashboards"
             subtitle="Live institutional analytics, governance, research and academic intelligence platforms."
             portals={ACADEMIC_PORTALS}
             icon={GraduationCap}
