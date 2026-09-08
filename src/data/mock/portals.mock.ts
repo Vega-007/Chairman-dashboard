@@ -58,7 +58,7 @@ export const ACADEMIC_PORTALS: DashboardPortal[] = [
   {
     id: 'appraisal-dashboard',
     name: 'Appraisal Dashboard',
-    description: 'Faculty Performance & Goals Met',
+    description: 'Faculty Performance',
     category: 'ACADEMIC',
     status: 'LIVE',
     url: 'https://faculty-appraisal-form-five.vercel.app/?role=CHAIRMAN',
