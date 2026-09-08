@@ -41,7 +41,7 @@ export default function RootPage() {
 
       <ChairmanHeader />
 
-      <main className="flex-1 w-full max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-10 py-7">
+      <main className="flex-1 w-full max-w-[1800px] mx-auto px-5 sm:px-8 lg:px-10 py-7">
 
         <div className="space-y-8">
 
@@ -52,7 +52,7 @@ export default function RootPage() {
             portals={ACADEMIC_PORTALS}
             icon={GraduationCap}
             onToast={showToast}
-            gridClass="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+            gridClass="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7"
             sectionTheme="academic"
           />
 
@@ -83,7 +83,7 @@ export default function RootPage() {
 
       {/* Footer */}
       <footer className="w-full mt-8 py-4 px-5 sm:px-8 border-t" style={{ borderColor: 'rgba(226,232,240,0.7)', backgroundColor: 'rgba(255,255,255,0.6)' }}>
-        <div className="max-w-[1440px] mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-[1800px] mx-auto flex items-center justify-between gap-4">
           <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider">
             Executive Governance Platform · Strictly Confidential
           </span>

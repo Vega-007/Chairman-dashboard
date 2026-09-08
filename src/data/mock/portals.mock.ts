@@ -14,6 +14,7 @@ import {
   Bus,
   Wifi,
   Users,
+  FileCheck,
   type LucideIcon
 } from 'lucide-react';
 
@@ -103,6 +104,16 @@ export const ACADEMIC_PORTALS: DashboardPortal[] = [
     url: 'https://placement-portal-sigma-seven.vercel.app/?role=CHAIRMAN',
     icon: Briefcase,
     accent: 'teal',
+  },
+  {
+    id: 'chairman-approval',
+    name: 'Chairman Approval Dashboard',
+    description: 'Centralized Approval & Authorization Workflow',
+    category: 'ACADEMIC',
+    status: 'LIVE',
+    url: 'https://srm-approval.vercel.app/?role=CHAIRMAN',
+    icon: FileCheck,
+    accent: 'rose',
   }
 ];
 

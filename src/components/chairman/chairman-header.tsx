@@ -43,7 +43,7 @@ export const ChairmanHeader: React.FC = () => {
       {/* Right ambient glow */}
       <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%)' }} />
 
-      <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 relative z-10">
+      <div className="max-w-[1800px] mx-auto px-5 sm:px-8 lg:px-12 relative z-10">
         <div className="flex items-center h-[78px] gap-0">
 
           {/* SRM Logo */}
